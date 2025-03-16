@@ -15,26 +15,29 @@ public struct StoriesSectionView: View {
     @Binding var showStory: Bool
     @Binding var selectedStory: String
     
-    let onAddstoryClick: () -> Void
     
     public var body: some View {
         ScrollViewReader { scrollView in
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(storiesList) { story in
-                        if !showStory || selectedStory != story.id{
-                            StoryThumbnailView(
-                                story: story,
-                                namespace: storyNamespace,
-                                onLongPress: {},
-                                onClick: { onStoryClick(story: story) }
-                            )
-                            .id(story.id)
+                        ZStack{
+                            Circle()
+                                .opacity(0.001)
+                            if !showStory || selectedStory != story.id{
+                                StoryThumbnailView(
+                                    story: story,
+                                    namespace: storyNamespace,
+                                    onLongPress: {},
+                                    onClick: { onStoryClick(story: story) }
+                                )
+                                .id(story.id)
+                            }
                         }
                     }
                 }
-                .padding()
-                .onChange(of: selectedStory){storyId in
+                
+                .onChange(of: selectedStory){ storyId in
                     withAnimation(){
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4){
                             scrollView.scrollTo(storyId, anchor: .leading)
@@ -59,8 +62,7 @@ public struct StoriesSectionView: View {
         storiesList: DeveloperPreview.stories,
         storyNamespace: Namespace().wrappedValue,
         showStory: .constant(false),
-        selectedStory: .constant(""),
-        onAddstoryClick: {}
+        selectedStory: .constant("")
     )
     .frame(height: 120)
 }

@@ -22,7 +22,6 @@ public struct StoryThumbnailView: View {
                     Button(
                         action: { onClick() },
                         label: {
-                            
                             ZStack{
                                 Circle()
                                     .fill(Color.white.opacity(0.001))
@@ -42,22 +41,15 @@ public struct StoryThumbnailView: View {
                     
                 }
             }
+            .padding(.vertical, 3)
     }
 }
 
 
 #Preview {
-    let story = StoryItemBundle(
-        id: "1234",
-        url: [
-            "https://picsum.photos/800/1006",
-            "https://picsum.photos/800/1007",
-            "https://picsum.photos/800/1008"
-        ],
-        previewUrl: "https://picsum.photos/800/1009"
-    )
+    
     StoryThumbnailView(
-        story: story,
+        story: DeveloperPreview.story,
         namespace: Namespace().wrappedValue,
         onLongPress: {},
         onClick: {}
