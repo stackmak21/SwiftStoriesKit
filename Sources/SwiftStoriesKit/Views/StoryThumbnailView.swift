@@ -10,7 +10,8 @@ import SwiftUI
 public struct StoryThumbnailView: View {
     
     let story: StoryItemBundle
-    let namespace: Namespace.ID
+    let storyNamespace: Namespace.ID
+    let storyThumbnailNamespace: Namespace.ID
     let onLongPress: () -> Void
     let onClick: () -> Void
     
@@ -30,7 +31,7 @@ public struct StoryThumbnailView: View {
                                             .stroke(LinearGradient(colors: [.pink, .red, .orange], startPoint: .topTrailing, endPoint: .bottomLeading), lineWidth: 3)
                                     )
                                 ImageLoader(url: story.previewUrl)
-                                    .matchedGeometryEffect(id: story.id, in: namespace)
+                                    .matchedGeometryEffect(id: story.id, in: storyThumbnailNamespace)
                                     .frame(width: geo.size.width - 6, height: geo.size.height - 6)
                                     .clipShape(Circle())
                             }
@@ -50,7 +51,8 @@ public struct StoryThumbnailView: View {
     
     StoryThumbnailView(
         story: DeveloperPreview.story,
-        namespace: Namespace().wrappedValue,
+        storyNamespace: Namespace().wrappedValue,
+        storyThumbnailNamespace: Namespace().wrappedValue,
         onLongPress: {},
         onClick: {}
     )
@@ -71,7 +73,7 @@ struct StoryThumbnailButtonStyle: ButtonStyle{
                     .foregroundStyle(Color.gray.opacity(isLongPressed ? 0.2 : 0))
             }
             .onLongPressGesture(
-                minimumDuration: 0.16,
+                minimumDuration: 0.5,
                 maximumDistance: 100,
                 perform: {
                     isLongPressed = true

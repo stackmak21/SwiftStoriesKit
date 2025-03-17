@@ -22,7 +22,7 @@ public struct StoriesView: View {
     
     let storiesList: [StoryItemBundle]
     let storyNamespace: Namespace.ID
-    
+    let storyThumbnailNamespace: Namespace.ID
     
     private let deviceHeight: Double = UIScreen.self.main.bounds.height
     
@@ -35,18 +35,27 @@ public struct StoriesView: View {
                     GeometryReader{ geo in
                         ZStack{
                             ImageLoader(url: story.previewUrl)
-                                .frame(width: geo.size.width)
+                                .frame(width: geo.size.width, height: geo.size.height)
                                 .clipped()
+                            if showStory && story.id == selectedStory{
+                                ImageLoader(url: story.previewUrl)
+                                    .matchedGeometryEffect(id: story.id, in: storyThumbnailNamespace)
+                                    .frame(width: 60, height: 60)
+                                    .clipShape(Circle())
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                    .padding()
+                                
+                            }
                         }
-                        
                         .tag(story.id)
                         .rotation3DEffect(allow3dRotation ? getAngle(proxy: geo) : .zero , axis: (x:0, y:1, z:0), anchor: geo.frame(in: .global).minX > 0 ? .leading : .trailing, perspective: 0.5)
                     }
-                    .onAppear{
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            allow3dRotation = true
-                        }
-                    }
+                    // 3D Rotation. Disabling for Test.
+//                    .onAppear{
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+//                            allow3dRotation = true
+//                        }
+//                    }
                 }
                 
             }
@@ -76,7 +85,7 @@ public struct StoriesView: View {
         let dy = value.translation.height
         
         if dy >= 0.0 {
-            if dy <= deviceHeight / 2 {
+            if dy <= deviceHeight / 10 {
                 withAnimation {
                     offsetY = 0.0
                     scale = 1.0
@@ -85,8 +94,8 @@ public struct StoriesView: View {
             }else{
                 allow3dRotation = false
                 if !allow3dRotation{
-                    withAnimation(.easeInOut(duration: 0.1)){
-                        showStory.toggle()
+                    withAnimation(.interactiveSpring(duration: 0.12)){
+                        showStory = false
                     }
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4){
@@ -113,6 +122,7 @@ public struct StoriesView: View {
         allow3dRotation: .constant(true),
         selectedStory: .constant(""),
         storiesList: DeveloperPreview.stories,
-        storyNamespace: Namespace().wrappedValue
+        storyNamespace: Namespace().wrappedValue,
+        storyThumbnailNamespace:  Namespace().wrappedValue
     )
 }
