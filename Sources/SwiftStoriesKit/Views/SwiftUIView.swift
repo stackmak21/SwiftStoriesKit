@@ -11,59 +11,69 @@ struct SwiftUIView: View {
     @Namespace private var namespace
     @Namespace private var storyNamespace
     
+    @State private var selectedStory: String = ""
     @State var isShown: Bool = false
     
     var body: some View {
-        ZStack{
-            GeometryReader{ geo in
-                VStack{
-                    Spacer()
-                    HStack{
-                        if !isShown{
-                            ZStack{
-                                RoundedRectangle(cornerRadius: 8)
-                                    .matchedGeometryEffect(id: "123", in: namespace)
-                                    .foregroundStyle(Color.white.opacity(0.001))
-                                    .frame(width: 100, height: 100)
-                                    .onTapGesture {
-                                        isShown = true
-                                    }
-                                ImageLoader(url: DeveloperPreview.story.previewUrl)
-                                    .matchedGeometryEffect(id: "123", in: storyNamespace)
-                                    .frame(width: 60, height: 60)
-                                    .foregroundStyle(Color.red)
-                                    .onTapGesture {
-                                        isShown = true
-                                    }
+        ZStack {
+            VStack {
+                HStack {
+                    if !isShown {
+                        ZStack {
+                            ImageLoader(url: DeveloperPreview.story.url[2])
+                                .matchedGeometryEffect(id: "box", in: namespace, isSource: true)
+                                .frame(width: 20, height: 20)
+
+                            ImageLoader(url: DeveloperPreview.story.previewUrl)
+                                .matchedGeometryEffect(id: "storyThumbnail", in: namespace, isSource: true)
+                                .frame(width: 120, height: 120)
+                                
+                        }
+                        .transition(.scale(scale: 0.99))
+                        .onTapGesture {
+                            withAnimation {
+                                isShown = true
                             }
                         }
-                        Spacer()
                     }
+                }
+                Spacer()
+            }
+
+            if isShown {
+                ZStack {
+                    
+                    TabView(selection: $selectedStory) {
+                            GeometryReader { geo in
+                                ZStack {
+
+                                    ImageLoader(url: DeveloperPreview.story.previewUrl)
+                                        .clipped()
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                                    ImageLoader(url: DeveloperPreview.story.previewUrl)
+                                        .matchedGeometryEffect(id: "storyThumbnail", in: namespace)
+                                        .frame(width: 60, height: 60)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                        .padding()
+                                }
+                            }
+                        
+                    }
+                    .matchedGeometryEffect(id: "box", in: storyNamespace)
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    
                     
                 }
-                
-                if isShown{
-                    ZStack{
-                        ImageLoader(url: DeveloperPreview.story.url[2])
-                            .matchedGeometryEffect(id: "123", in: namespace)
-                            .frame(width: geo.size.width)
-                            .clipped()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .onTapGesture {
-                                isShown = false
-                            }
-                        ImageLoader(url: DeveloperPreview.story.previewUrl)
-                            .matchedGeometryEffect(id: "123", in: storyNamespace)
-                            .foregroundStyle(Color.red)
-                            .frame(width: 40, height: 40)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                            .padding()
+                .transition(.scale(scale: 0.99)) // Move transition here
+                .onTapGesture {
+                    withAnimation {
+                        isShown = false
                     }
-                    
                 }
             }
         }
-        .animation(.interpolatingSpring(duration: 0.12), value: isShown)
+        .animation(.interpolatingSpring(duration: 1), value: isShown)
     }
 }
 

@@ -11,7 +11,7 @@ public struct StoriesSectionView: View {
     
     let storiesList: [StoryItemBundle]
     let storyNamespace: Namespace.ID
-    let storyThumbnailNamespace: Namespace.ID
+    let thumbnailNamespace: Namespace.ID
     
     @Binding var showStory: Bool
     @Binding var selectedStory: String
@@ -26,14 +26,16 @@ public struct StoriesSectionView: View {
                             Circle()
                                 .opacity(0.001)
                             if !showStory || selectedStory != story.id {
-                                Circle()
+                                ImageLoader(url: story.previewUrl)
                                     .matchedGeometryEffect(id: story.id, in: storyNamespace)
-                                    .foregroundStyle(Color.white.opacity(0.001))
+                                    .transition(.scale(scale: 0.99))
+                                    .frame(width: 20, height: 20)
+//                                    .foregroundStyle(Color.white.opacity(0.001))
 
                                     StoryThumbnailView(
                                         story: story,
                                         storyNamespace: storyNamespace,
-                                        storyThumbnailNamespace: storyThumbnailNamespace,
+                                        storyThumbnailNamespace: thumbnailNamespace,
                                         onLongPress: {},
                                         onClick: { onStoryClick(story: story) }
                                     )
@@ -60,7 +62,7 @@ public struct StoriesSectionView: View {
     
     private func onStoryClick(story: StoryItemBundle){
         selectedStory = story.id
-        withAnimation(.interactiveSpring(duration: 0.12)) {
+        withAnimation(.interactiveSpring(duration: 1.5)) {
             showStory = true
         }
     }
@@ -70,7 +72,7 @@ public struct StoriesSectionView: View {
     StoriesSectionView(
         storiesList: DeveloperPreview.stories,
         storyNamespace: Namespace().wrappedValue,
-        storyThumbnailNamespace: Namespace().wrappedValue,
+        thumbnailNamespace: Namespace().wrappedValue,
         showStory: .constant(false),
         selectedStory: .constant("")
     )

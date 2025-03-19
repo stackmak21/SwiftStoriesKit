@@ -24,17 +24,24 @@ struct ImageLoader: View {
     }
     
     var body: some View {
-        ZStack{
+        ZStack {
             if let urlValue = URL(string: url) {
-                KFImage(urlValue)
-                    .resizable()
-                    .placeholder{
-                        Rectangle()
-                    }
-                    .scaledToFill()
-                    .frame(width: width, height: height)
-                    .clipped()
+                GeometryReader { proxy in
+                    KFImage(urlValue)
+                        .resizable()
+                        .placeholder {
+                            Rectangle()
+                                .frame(width: proxy.size.width, height: proxy.size.height)
+                        }
+                        .loadDiskFileSynchronously() // ✅ Ensures smooth loading
+                        .fade(duration: 0) // ✅ Prevents sudden fade-in effects
+                        .scaledToFill()
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .clipped()
+                        .animation(.easeInOut(duration: 0.2), value: url) // ✅ Ensures smooth updates
                 }
+                .frame(width: width, height: height)
+            }
         }
     }
 }

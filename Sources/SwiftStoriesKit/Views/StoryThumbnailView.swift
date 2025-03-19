@@ -24,16 +24,16 @@ public struct StoryThumbnailView: View {
                         action: { onClick() },
                         label: {
                             ZStack{
-                                Circle()
-                                    .fill(Color.white.opacity(0.001))
-                                    .overlay(
-                                        Circle()
-                                            .stroke(LinearGradient(colors: [.pink, .red, .orange], startPoint: .topTrailing, endPoint: .bottomLeading), lineWidth: 3)
-                                    )
+//                                Circle()
+//                                    .fill(Color.white.opacity(0.001))
+//                                    .overlay(
+//                                        Circle()
+//                                            .stroke(LinearGradient(colors: [.pink, .red, .orange], startPoint: .topTrailing, endPoint: .bottomLeading), lineWidth: 3)
+//                                    )
                                 ImageLoader(url: story.previewUrl)
                                     .matchedGeometryEffect(id: story.id, in: storyThumbnailNamespace)
                                     .frame(width: geo.size.width - 6, height: geo.size.height - 6)
-                                    .clipShape(Circle())
+                                    
                             }
                             
                         }
@@ -56,7 +56,9 @@ public struct StoryThumbnailView: View {
         onLongPress: {},
         onClick: {}
     )
+    .background(.blue)
     .frame(width: 100, height: 100)
+    .background(.red)
 }
 
 

@@ -19,14 +19,21 @@ struct CompleteProject: View {
     var body: some View {
         ZStack{
             VStack{
-                    StoriesSectionView(
-                        storiesList: DeveloperPreview.stories,
-                        storyNamespace: storyNamespace,
-                        storyThumbnailNamespace: storyThumbnailNamespace,
-                        showStory: $showStory,
-                        selectedStory: $selectedStory
-                    )
-                    .frame(height: 100)
+//                    StoriesSectionView(
+//                        storiesList: DeveloperPreview.stories,
+//                        storyNamespace: storyNamespace,
+//                        thumbnailNamespace: storyThumbnailNamespace,
+//                        showStory: $showStory,
+//                        selectedStory: $selectedStory
+//                    )
+                StoriesThumbnailListView(
+                    storiesList: DeveloperPreview.stories,
+                    storyNamespace: storyNamespace,
+                    storyThumbnailNamespace: storyThumbnailNamespace,
+                    showStory: $showStory,
+                    selectedStory: $selectedStory
+                )
+                Spacer()
             }
             if showStory{
                 StoriesView(
