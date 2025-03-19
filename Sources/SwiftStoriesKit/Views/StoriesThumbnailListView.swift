@@ -11,7 +11,7 @@ public struct StoriesThumbnailListView: View {
     
     let storiesList: [StoryItemBundle]
     let storyNamespace: Namespace.ID
-    let storyThumbnailNamespace: Namespace.ID
+    let thumbnailNamespace: Namespace.ID
     
     @Binding var showStory: Bool
     @Binding var selectedStory: String
@@ -24,27 +24,32 @@ public struct StoriesThumbnailListView: View {
                     HStack {
                         ForEach(storiesList) { story in
                             ZStack{
-                                Rectangle()
+                                Circle()
                                     .frame(width: 100, height: 100)
                                 if !showStory || selectedStory != story.id {
                                     ZStack{
                                         
-                                        ImageLoader(url: story.previewUrl)
+                                        ImageLoaderRect(url: story.previewUrl)
                                             .matchedGeometryEffect(id: story.id, in: storyNamespace)
                                             .frame(width: 20, height: 20)
                                         
-                                        ImageLoader(url: story.previewUrl)
-                                        //                                        .frame(width: 100, height: 100)
-                                        //                                        .clipShape(Circle())
-                                            .matchedGeometryEffect(id: story.id, in: storyThumbnailNamespace)
-                                            .frame(width: 100, height: 100)
-                                            .foregroundStyle(Color.black.opacity(1))
+                                        StoryThumbnailView(
+                                            story: story,
+                                            thumbnailNamespace: thumbnailNamespace,
+                                            onLongPress: {},
+                                            onClick: {onStoryClick(story: story)}
+                                        )
+                                        .frame(width: 100, height: 100)
+                                        .zIndex(1)
+//                                        ImageLoader(url: story.previewUrl)
+//                                            .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
+//                                            .frame(width: 100, height: 100)
                                         
                                         
                                     }
                                     .transition(.scale(scale: 0.99))
                                     .onTapGesture {
-                                        onStoryClick(story: story)
+                                        
                                     }
                                     .id(story.id)
                                 }
@@ -54,13 +59,13 @@ public struct StoriesThumbnailListView: View {
                     Spacer()
                 }
                 
-//                .onChange(of: selectedStory){ storyId in
-//                    withAnimation(){
-//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4){
-//                            scrollView.scrollTo(storyId, anchor: .leading)
-//                        }
-//                    }
-//                }
+                .onChange(of: selectedStory){ storyId in
+                    withAnimation(){
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4){
+                            scrollView.scrollTo(storyId, anchor: .leading)
+                        }
+                    }
+                }
             }
         }
     }
@@ -77,7 +82,7 @@ public struct StoriesThumbnailListView: View {
     StoriesThumbnailListView(
         storiesList: DeveloperPreview.stories,
         storyNamespace: Namespace().wrappedValue,
-        storyThumbnailNamespace: Namespace().wrappedValue,
+        thumbnailNamespace: Namespace().wrappedValue,
         showStory: .constant(false),
         selectedStory: .constant("")
     )

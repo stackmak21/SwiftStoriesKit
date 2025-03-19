@@ -1,5 +1,5 @@
 //
-//  SwiftUIView 2.swift
+//  SwiftUIView.swift
 //  SwiftStoriesKit
 //
 //  Created by Paris Makris on 18/3/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SwiftUIView_2: View {
+struct SwiftUIView: View {
     @Namespace private var thumbnailNamespace
     @Namespace private var storyNamespace
     
@@ -25,7 +25,7 @@ struct SwiftUIView_2: View {
                                 Rectangle()
                                     .stroke(lineWidth: 4)
                                     .frame(width: 64, height: 64)
-                                ImageLoader(url: story.previewUrl)
+                                ImageLoaderRect(url: story.previewUrl)
                                     .matchedGeometryEffect(id: story.id, in: storyNamespace)
                                     .frame(width: 20, height: 20)
 //                                    .clipShape(Circle())
@@ -57,7 +57,7 @@ struct SwiftUIView_2: View {
                         ForEach(DeveloperPreview.stories) { story in
                             GeometryReader { geo in
                                 ZStack {
-                                    ImageLoader(url: story.previewUrl)
+                                    ImageLoaderRect(url: story.previewUrl)
                                         .frame(width: geo.size.width, height: geo.size.height)
                                         .clipped()
 
@@ -88,5 +88,5 @@ struct SwiftUIView_2: View {
 }
 
 #Preview {
-    SwiftUIView_2()
+    SwiftUIView()
 }

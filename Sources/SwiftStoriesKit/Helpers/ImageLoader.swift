@@ -37,14 +37,53 @@ struct ImageLoader: View {
                         .fade(duration: 0) // ✅ Prevents sudden fade-in effects
                         .scaledToFill()
                         .frame(width: proxy.size.width, height: proxy.size.height)
-                        .clipped()
-                        .animation(.easeInOut(duration: 0.2), value: url) // ✅ Ensures smooth updates
+                        .clipShape(Circle())
+                        /*.animation(.easeInOut(duration: 0.2), value: url)*/ // ✅ Ensures smooth updates
                 }
                 .frame(width: width, height: height)
             }
         }
     }
 }
+
+struct ImageLoaderRect: View {
+    let url: String
+    let width: CGFloat?
+    let height: CGFloat?
+    
+    init(
+        url: String,
+        width: CGFloat? = nil,
+        height: CGFloat? = nil
+    ) {
+        self.url = url
+        self.width = width
+        self.height = height
+    }
+    
+    var body: some View {
+        ZStack {
+            if let urlValue = URL(string: url) {
+                GeometryReader { proxy in
+                    KFImage(urlValue)
+                        .resizable()
+                        .placeholder {
+                            Rectangle()
+                                .frame(width: proxy.size.width, height: proxy.size.height)
+                        }
+                        .loadDiskFileSynchronously() // ✅ Ensures smooth loading
+                        .fade(duration: 0) // ✅ Prevents sudden fade-in effects
+                        .scaledToFill()
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .clipped()
+                        /*.animation(.easeInOut(duration: 0.2), value: url)*/ // ✅ Ensures smooth updates
+                }
+                .frame(width: width, height: height)
+            }
+        }
+    }
+}
+
 
 #Preview {
     ImageLoader(

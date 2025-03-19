@@ -29,7 +29,7 @@ struct CompleteProject: View {
                 StoriesThumbnailListView(
                     storiesList: DeveloperPreview.stories,
                     storyNamespace: storyNamespace,
-                    storyThumbnailNamespace: storyThumbnailNamespace,
+                    thumbnailNamespace: storyThumbnailNamespace,
                     showStory: $showStory,
                     selectedStory: $selectedStory
                 )

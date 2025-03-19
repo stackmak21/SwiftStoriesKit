@@ -10,39 +10,21 @@ import SwiftUI
 public struct StoryThumbnailView: View {
     
     let story: StoryItemBundle
-    let storyNamespace: Namespace.ID
-    let storyThumbnailNamespace: Namespace.ID
+    let thumbnailNamespace: Namespace.ID
     let onLongPress: () -> Void
     let onClick: () -> Void
     
     public var body: some View {
-        Circle()
-            .foregroundStyle(Color.white.opacity(0.001))
-            .overlay{
-                GeometryReader{ geo in
-                    Button(
-                        action: { onClick() },
-                        label: {
-                            ZStack{
-//                                Circle()
-//                                    .fill(Color.white.opacity(0.001))
-//                                    .overlay(
-//                                        Circle()
-//                                            .stroke(LinearGradient(colors: [.pink, .red, .orange], startPoint: .topTrailing, endPoint: .bottomLeading), lineWidth: 3)
-//                                    )
-                                ImageLoader(url: story.previewUrl)
-                                    .matchedGeometryEffect(id: story.id, in: storyThumbnailNamespace)
-                                    .frame(width: geo.size.width - 6, height: geo.size.height - 6)
-                                    
-                            }
-                            
-                        }
-                    )
-                    .buttonStyle(StoryThumbnailButtonStyle(onLongPress: onLongPress))
-                    
+        Button(
+            action: { onClick() },
+            label: {
+                ZStack{
+                    ImageLoader(url: story.previewUrl)
+                        .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
                 }
             }
-            .padding(.vertical, 3)
+        )
+        .buttonStyle(StoryThumbnailButtonStyle(onLongPress: onLongPress))
     }
 }
 
@@ -51,14 +33,11 @@ public struct StoryThumbnailView: View {
     
     StoryThumbnailView(
         story: DeveloperPreview.story,
-        storyNamespace: Namespace().wrappedValue,
-        storyThumbnailNamespace: Namespace().wrappedValue,
+        thumbnailNamespace: Namespace().wrappedValue,
         onLongPress: {},
         onClick: {}
     )
-    .background(.blue)
     .frame(width: 100, height: 100)
-    .background(.red)
 }
 
 
