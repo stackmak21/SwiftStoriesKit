@@ -1,117 +1,138 @@
+// DeveloperPreview.swift
+// SwiftStoriesKit
 //
-//  DeveloperPreview.swift
-//  SwiftStoriesKit
+// Created by Paris Makris on 16/3/25.
 //
-//  Created by Paris Makris on 16/3/25.
-//
-
 
 import SwiftUI
 import Foundation
 
-public struct DeveloperPreview{
+public struct DeveloperPreview {
     
-    public static var story: StoryItemBundle {
-        let story = StoryItemBundle(
+    public static var story: StoryBundle {
+        let story = StoryBundle(
             id: "1234",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1006"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1011"
+            previewUrl: "https://picsum.photos/800/1011",
+            type: .photo, // Assuming type is .photo, you can change this as needed
+            creator: Creator() // Assuming a default creator is acceptable
         )
         return story
     }
     
-    public static var stories:  [StoryItemBundle] {
-        let story1 = StoryItemBundle(
+    public static var stories: [StoryBundle] {
+        let story1 = StoryBundle(
             id: "1234",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1001"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1012"
+            previewUrl: "https://picsum.photos/800/1012",
+            type: .photo, // Again, assuming .photo for media type
+            creator: Creator()
         )
-        let story2 = StoryItemBundle(
+        
+        let story2 = StoryBundle(
             id: "12345",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1002"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1013"
+            previewUrl: "https://picsum.photos/800/1013",
+            type: .photo,
+            creator: Creator()
         )
-        let story3 = StoryItemBundle(
+        
+        let story3 = StoryBundle(
             id: "123456",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1003"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1014"
+            previewUrl: "https://picsum.photos/800/1014",
+            type: .photo,
+            creator: Creator()
         )
         
-        let story4 = StoryItemBundle(
+        let story4 = StoryBundle(
             id: "1223456",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1004"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1015"
+            previewUrl: "https://picsum.photos/800/1015",
+            type: .photo,
+            creator: Creator()
         )
         
-        let story5 = StoryItemBundle(
+        let story5 = StoryBundle(
             id: "1234565",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1005"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1017"
+            previewUrl: "https://picsum.photos/800/1017",
+            type: .photo,
+            creator: Creator()
         )
         
-        let story6 = StoryItemBundle(
+        let story6 = StoryBundle(
             id: "1263456",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1006"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1018"
+            previewUrl: "https://picsum.photos/800/1018",
+            type: .photo,
+            creator: Creator()
         )
         
-        let story7 = StoryItemBundle(
+        let story7 = StoryBundle(
             id: "12332456",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1024"
+            previewUrl: "https://picsum.photos/800/1024",
+            type: .photo,
+            creator: Creator()
         )
         
-        let story8 = StoryItemBundle(
+        let story8 = StoryBundle(
             id: "123453456",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1008"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1023"
+            previewUrl: "https://picsum.photos/800/1023",
+            type: .photo,
+            creator: Creator()
         )
         
-        let story9 = StoryItemBundle(
+        let story9 = StoryBundle(
             id: "1234422556",
-            url: [
-                "https://picsum.photos/800/1006",
-                "https://picsum.photos/800/1007",
-                "https://picsum.photos/800/1008"
+            stories: [
+                Story(imageURL: "https://picsum.photos/800/1009"),
+                Story(imageURL: "https://picsum.photos/800/1007"),
+                Story(imageURL: "https://picsum.photos/800/1008")
             ],
-            previewUrl: "https://picsum.photos/800/1029"
+            previewUrl: "https://picsum.photos/800/1029",
+            type: .photo,
+            creator: Creator()
         )
+        
         return [story1, story2, story3, story4, story5, story6, story7, story8, story9]
     }
 }

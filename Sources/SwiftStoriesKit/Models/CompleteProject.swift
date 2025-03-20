@@ -10,11 +10,13 @@ import Foundation
 
 
 struct CompleteProject: View {
+    
+    @State var stories: [StoryBundle] = DeveloperPreview.stories
     @Namespace private var storyNamespace
-    @Namespace private var storyThumbnailNamespace
+    @Namespace private var thumbnailNamespace
     @State var showStory: Bool = false
     @State var selectedStory: String = ""
-    @State var allow3dRotation: Bool = false
+    @State var allow3dRotation: Bool = true
     
     var body: some View {
         ZStack{
@@ -27,22 +29,23 @@ struct CompleteProject: View {
 //                        selectedStory: $selectedStory
 //                    )
                 StoriesThumbnailListView(
-                    storiesList: DeveloperPreview.stories,
+                    storiesList: stories,
                     storyNamespace: storyNamespace,
-                    thumbnailNamespace: storyThumbnailNamespace,
+                    thumbnailNamespace: thumbnailNamespace,
                     showStory: $showStory,
                     selectedStory: $selectedStory
                 )
+                
                 Spacer()
             }
             if showStory{
                 StoriesView(
                     showStory: $showStory,
-                    allow3dRotation: $allow3dRotation,
-                    selectedStory: $selectedStory,
-                    storiesList: DeveloperPreview.stories,
+                    allow3DRotation: $allow3dRotation,
+                    selectedStoryBundleID: $selectedStory,
+                    storiesList: stories,
                     storyNamespace: storyNamespace,
-                    storyThumbnailNamespace: storyThumbnailNamespace
+                    thumbnailNamespace: thumbnailNamespace
                 )
             }
         }

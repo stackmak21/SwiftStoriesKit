@@ -9,7 +9,7 @@ import SwiftUI
 
 public struct StoryThumbnailView: View {
     
-    let story: StoryItemBundle
+    let story: StoryBundle
     let thumbnailNamespace: Namespace.ID
     let onLongPress: () -> Void
     let onClick: () -> Void

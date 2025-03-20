@@ -9,20 +9,23 @@ import SwiftUI
 
 public struct StoriesView: View {
     
-    //    @EnvironmentObject var videoManager: VideoPlayerManager
-    
     @State private var offsetY: CGFloat = 0
     @State private var scale: CGFloat = 1
     @State private var opacity: Double = 1
     @State private var showInfo: Bool = false
     
-    @Binding var showStory: Bool
-    @Binding var allow3dRotation: Bool
-    @Binding var selectedStory: String
     
-    let storiesList: [StoryItemBundle]
+    
+    @Binding var showStory: Bool
+    @Binding var allow3DRotation: Bool
+    @Binding var selectedStoryBundleID: String
+    
+    let storiesList: [StoryBundle]
     let storyNamespace: Namespace.ID
-    let storyThumbnailNamespace: Namespace.ID
+    let thumbnailNamespace: Namespace.ID
+    
+    @State var timer = Timer.publish(every: 0.03, on: .main, in: .common).autoconnect()
+    @State private var timerProgress: CGFloat = 0
     
     private let deviceHeight: Double = UIScreen.self.main.bounds.height
     
@@ -30,41 +33,19 @@ public struct StoriesView: View {
         ZStack{
             Color.black.opacity(opacity).ignoresSafeArea()
             
-            TabView(selection: $selectedStory){
-                ForEach(storiesList){ story in
-                    GeometryReader{ geo in
-                        ZStack{
-                            ImageLoaderRect(url: story.previewUrl)
-                                .frame(width: geo.size.width, height: geo.size.height)
-                                .clipped()
-                            
-                                ZStack{
-                                    
-                                    ImageLoader(url: story.previewUrl)
-                                        .matchedGeometryEffect(id: selectedStory == story.id ? story.id : "", in: storyThumbnailNamespace)
-                                        .frame(width: 60, height: 60)
-                                        
-                                    ImageLoader(url: story.previewUrl)
-                                        .frame(width: 60, height: 60)
-                                        
-                                        
-                                }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                                .padding()
-                        }
-                        .tag(story.id)
-                        .rotation3DEffect(allow3dRotation ? getAngle(proxy: geo) : .zero , axis: (x:0, y:1, z:0), anchor: geo.frame(in: .global).minX > 0 ? .leading : .trailing, perspective: 0.5)
-                    }
-                    // 3D Rotation
-                    .onAppear{
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                            allow3dRotation = true
-                        }
-                    }
+            TabView(selection: $selectedStoryBundleID){
+                ForEach(storiesList){ storyBundle in
+                    StoryCardView(
+                        selectedStoryBundleID: $selectedStoryBundleID,
+                        timerProgress: $timerProgress,
+                        allow3DRotation: $allow3DRotation,
+                        storyBundle: storyBundle,
+                        thumbnailNamespace: thumbnailNamespace
+                    )
+                    .tag(storyBundle.id)
                 }
-                
             }
-            .matchedGeometryEffect(id: selectedStory, in: storyNamespace)
+            .matchedGeometryEffect(id: selectedStoryBundleID, in: storyNamespace)
             .tabViewStyle(.page(indexDisplayMode: .never))
             .offset(y: offsetY)
             .scaleEffect(scale)
@@ -73,10 +54,60 @@ public struct StoriesView: View {
                     .onChanged(onDrag)
                     .onEnded(onDragEnded)
             )
+            .onAppear{
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    allow3DRotation = true
+                }
+            }
             
         }
-        
+        .onReceive(timer) { _ in
+            guard let story =  storiesList.first(where: { $0.id == selectedStoryBundleID}) else { return }
+            if timerProgress < CGFloat(story.stories.count) {
+                withAnimation {
+                    timerProgress += 0.03
+                }
+            }else{
+                updateStory()
+            }
+        }
     }
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    private func resetTimer(){
+        timerProgress = 0
+    }
+    
+    private func updateStory(forward: Bool = true){
+        guard let storyBundle =  storiesList.first(where: { $0.id == selectedStoryBundleID}) else { return }
+        let index = min(Int(timerProgress), storyBundle.stories.count - 1)
+        let story = storyBundle.stories[index]
+        if let last = storyBundle.stories.last, last.id == story.id{
+            if let lastBundle = storiesList.last, lastBundle.id == storyBundle.id{
+                withAnimation {
+                    showStory = false
+                }
+                resetTimer()
+            }
+            else{
+                let storyBundleIndex = storiesList.firstIndex(where: { $0.id == selectedStoryBundleID }) ?? 0
+
+                    
+                        selectedStoryBundleID = storiesList[storyBundleIndex + 1].id
+                    
+               
+            }
+        }
+    }
+    
     
     private func onDrag(_ value: DragGesture.Value) {
         let dy = value.translation.height
@@ -98,9 +129,9 @@ public struct StoriesView: View {
                     opacity = 1.0
                 }
             }else{
-                allow3dRotation = false
-                if !allow3dRotation{
-                    withAnimation(.spring(duration: 0.20)){
+                allow3DRotation = false
+                if !allow3DRotation{
+                    withAnimation(.spring(duration: 0.2)){
                         showStory = false
                     }
                 }
@@ -113,22 +144,19 @@ public struct StoriesView: View {
         }
     }
     
-    private func getAngle(proxy: GeometryProxy) -> Angle {
-        let progress = proxy.frame(in: .global).minX / proxy.size.width
-        let rotationAngle: CGFloat = 75
-        let degrees = rotationAngle * progress
-        return Angle(degrees: Double(degrees))
-    }
+
 }
+
+
 
 
 #Preview {
     StoriesView(
         showStory: .constant(true),
-        allow3dRotation: .constant(true),
-        selectedStory: .constant(""),
+        allow3DRotation: .constant(true),
+        selectedStoryBundleID: .constant("12345"),
         storiesList: DeveloperPreview.stories,
         storyNamespace: Namespace().wrappedValue,
-        storyThumbnailNamespace:  Namespace().wrappedValue
+        thumbnailNamespace:  Namespace().wrappedValue
     )
 }

@@ -9,7 +9,7 @@ import SwiftUI
 
 public struct StoriesThumbnailListView: View {
     
-    let storiesList: [StoryItemBundle]
+    let storiesList: [StoryBundle]
     let storyNamespace: Namespace.ID
     let thumbnailNamespace: Namespace.ID
     
@@ -28,8 +28,7 @@ public struct StoriesThumbnailListView: View {
                                     .frame(width: 100, height: 100)
                                 if !showStory || selectedStory != story.id {
                                     ZStack{
-                                        
-                                        ImageLoaderRect(url: story.previewUrl)
+                                        ImageLoaderRect(url: story.stories[0].imageURL)
                                             .matchedGeometryEffect(id: story.id, in: storyNamespace)
                                             .frame(width: 20, height: 20)
                                         
@@ -37,20 +36,11 @@ public struct StoriesThumbnailListView: View {
                                             story: story,
                                             thumbnailNamespace: thumbnailNamespace,
                                             onLongPress: {},
-                                            onClick: {onStoryClick(story: story)}
+                                            onClick: {onStoryClick(story)}
                                         )
                                         .frame(width: 100, height: 100)
-                                        .zIndex(1)
-//                                        ImageLoader(url: story.previewUrl)
-//                                            .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
-//                                            .frame(width: 100, height: 100)
-                                        
-                                        
                                     }
                                     .transition(.scale(scale: 0.99))
-                                    .onTapGesture {
-                                        
-                                    }
                                     .id(story.id)
                                 }
                             }
@@ -59,21 +49,21 @@ public struct StoriesThumbnailListView: View {
                     Spacer()
                 }
                 
-                .onChange(of: selectedStory){ storyId in
-                    withAnimation(){
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4){
-                            scrollView.scrollTo(storyId, anchor: .leading)
-                        }
-                    }
-                }
+                .onChange(of: selectedStory){ scrollToLeading(scrollView, $0) }
             }
         }
     }
     
-    private func onStoryClick(story: StoryItemBundle){
+    private func onStoryClick(_ story: StoryBundle){
         selectedStory = story.id
         withAnimation(.interpolatingSpring(duration: 0.2)) {
             showStory = true
+        }
+    }
+    
+    private func scrollToLeading(_ scrollView: ScrollViewProxy, _ storyId: String){
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+            scrollView.scrollTo(storyId, anchor: .leading)
         }
     }
 }
