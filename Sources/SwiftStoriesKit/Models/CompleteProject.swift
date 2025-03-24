@@ -16,7 +16,7 @@ struct CompleteProject: View {
     @Namespace private var thumbnailNamespace
     @State var showStory: Bool = false
     @State var selectedStory: String = ""
-    @State var allow3dRotation: Bool = true
+    @State var allow3dRotation: Bool = false
     
     var body: some View {
         ZStack{
@@ -36,7 +36,7 @@ struct CompleteProject: View {
                     selectedStory: $selectedStory
                 )
                 
-                Spacer()
+                
             }
             if showStory{
                 StoriesView(

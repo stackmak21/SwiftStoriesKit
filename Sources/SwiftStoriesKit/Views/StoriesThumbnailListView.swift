@@ -56,13 +56,13 @@ public struct StoriesThumbnailListView: View {
     
     private func onStoryClick(_ story: StoryBundle){
         selectedStory = story.id
-        withAnimation(.interpolatingSpring(duration: 0.2)) {
+        withAnimation(.interpolatingSpring(duration: 1.2)) {
             showStory = true
         }
     }
     
     private func scrollToLeading(_ scrollView: ScrollViewProxy, _ storyId: String){
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.3){
             scrollView.scrollTo(storyId, anchor: .leading)
         }
     }

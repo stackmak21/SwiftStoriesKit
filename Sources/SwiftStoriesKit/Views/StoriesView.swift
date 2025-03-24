@@ -24,7 +24,7 @@ public struct StoriesView: View {
     let storyNamespace: Namespace.ID
     let thumbnailNamespace: Namespace.ID
     
-    @State var timer = Timer.publish(every: 0.03, on: .main, in: .common).autoconnect()
+    @State var timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     @State private var timerProgress: CGFloat = 0
     
     private let deviceHeight: Double = UIScreen.self.main.bounds.height
@@ -55,9 +55,12 @@ public struct StoriesView: View {
                     .onEnded(onDragEnded)
             )
             .onAppear{
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
                     allow3DRotation = true
                 }
+            }
+            .onChange(of: allow3DRotation) {
+                print("allow 3d Rotation Value: \($0)")
             }
             
         }
@@ -65,7 +68,7 @@ public struct StoriesView: View {
             guard let story =  storiesList.first(where: { $0.id == selectedStoryBundleID}) else { return }
             if timerProgress < CGFloat(story.stories.count) {
                 withAnimation {
-                    timerProgress += 0.03
+                    timerProgress += 0.1
                 }
             }else{
                 updateStory()
@@ -131,11 +134,13 @@ public struct StoriesView: View {
             }else{
                 allow3DRotation = false
                 if !allow3DRotation{
-                    withAnimation(.spring(duration: 0.2)){
-                        showStory = false
+                    DispatchQueue.main.async{
+                        withAnimation(.spring(duration: 1)){
+                            showStory = false
+                        }
                     }
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4){
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.4){
                     offsetY = 0.0
                     scale = 1.0
                     opacity = 1.0
