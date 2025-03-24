@@ -34,7 +34,7 @@ struct SwiftUIView: View {
                     VStack{
                         HStack {
                             ForEach(DeveloperPreview.stories) { story in
-                                if !showStory{
+                                if !showStory  || selectedStory != story.id{
                                     ZStack {
                                         
                                         ImageLoaderRect(url: story.previewUrl)
