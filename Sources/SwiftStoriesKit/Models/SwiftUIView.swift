@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SwiftUIView: View {
-    let stories: [StoryBundle] = DeveloperPreview.stories
+    @State var stories: [StoryBundle] = DeveloperPreview.stories
     
     @Namespace private var thumbnailNamespace
     @Namespace private var storyNamespace
@@ -23,8 +23,6 @@ struct SwiftUIView: View {
     @State private var opacity: Double = 1
     @State private var showInfo: Bool = false
     
-    @State var allow3DRotation: Bool = false
-    
     @State var timerProgress: CGFloat = 0
     
     private let deviceHeight: Double = UIScreen.self.main.bounds.height
@@ -33,7 +31,7 @@ struct SwiftUIView: View {
         ZStack {
             
             StoryCarousel(
-                storyBundles: stories,
+                storyBundles: $stories,
                 showStory: $showStory,
                 isInternalThumbnailShown: $isInternalThumbnailShown,
                 selectedStory: $selectedStory,
@@ -48,12 +46,11 @@ struct SwiftUIView: View {
                 
                     
                     StoryFullScreenViewer(
-                        storyBundles: stories,
+                        storiesBundle: $stories,
                         opacity: $opacity,
                         showStory: $showStory,
                         isInternalThumbnailShown: $isInternalThumbnailShown,
                         selectedStory: $selectedStory,
-                        allow3DRotation: $allow3DRotation,
                         timerProgress: $timerProgress,
                         thumbnailNamespace: thumbnailNamespace,
                         storyNamespace: storyNamespace
@@ -61,7 +58,7 @@ struct SwiftUIView: View {
                 
             }
         }
-        .animation(.spring(duration: 1.4), value: showStory)
+        .animation(.spring(duration: 0.16), value: showStory)
     }
     
 
@@ -80,7 +77,7 @@ struct SwiftUIView: View {
 
 public struct StoryCarousel: View {
     
-    let storyBundles: [StoryBundle]
+    @Binding var storyBundles: [StoryBundle]
     
     @Binding var showStory: Bool
     @Binding var isInternalThumbnailShown: Bool
@@ -95,7 +92,7 @@ public struct StoryCarousel: View {
             ScrollView(.horizontal, showsIndicators: false){
                 VStack{
                     HStack {
-                        ForEach(DeveloperPreview.stories) { story in
+                        ForEach(storyBundles) { story in
                             
                             ZStack{
                                 Circle()
@@ -134,7 +131,7 @@ struct StoryThumbnailItem: View {
     var body: some View {
         ZStack {
             
-            ImageLoaderRect(url: story.previewUrl)
+            ImageLoaderRect(url: story.stories[story.currentStoryIndex].imageURL)
                 .matchedGeometryEffect(id: story.id, in: storyNamespace)
                 .frame(width: 20, height: 20)
 
@@ -159,7 +156,7 @@ struct StoryThumbnailItem: View {
 
 struct StoryFullScreenViewer: View {
     
-    let storyBundles: [StoryBundle]
+    @Binding var storiesBundle: [StoryBundle]
     
     @State private var offsetY: CGFloat = 0
     @State private var scale: CGFloat = 1
@@ -170,7 +167,6 @@ struct StoryFullScreenViewer: View {
     @Binding var showStory: Bool
     @Binding var isInternalThumbnailShown: Bool
     @Binding var selectedStory: String
-    @Binding var allow3DRotation: Bool
     
     @Binding var timerProgress: CGFloat
 
@@ -179,28 +175,70 @@ struct StoryFullScreenViewer: View {
     
     private let deviceHeight: Double = UIScreen.self.main.bounds.height
     
+    @State var storyIndex: Int = 0
+    
     var body: some View {
         ZStack {
             ZStack{
                 TabView(selection: $selectedStory) {
-                    ForEach(storyBundles) { story in
+                    ForEach(storiesBundle) { story in
                         GeometryReader { geo in
                             StoryContentView(
                                 story: story,
+                                index: storyIndex,
                                 geo: geo,
                                 isInternalThumbnailShown: $isInternalThumbnailShown,
                                 timerProgress: $timerProgress
                             )
+                            .onTapGesture(coordinateSpace: .global){ location in
+                                
+                                if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
+                                    let goForward = location.x >= geo.size.width / 2
+                                    if goForward{
+                                        if story.currentStoryIndex < story.stories.count - 1 {
+                                            storiesBundle[index].goToNextStory()
+                                        }else{
+                                            if index < storiesBundle.count - 1{
+                                                withAnimation(.easeIn(duration: 3)){
+                                                    
+                                                            selectedStory = storiesBundle[index + 1].id
+                                                        
+                                                }
+                                                
+                                            }else{
+                                                closeStoryViewer()
+                                            }
+                                        }
+                                    }
+                                    if !goForward{
+                                        if story.currentStoryIndex > 0 {
+                                            storiesBundle[index].goToPreviousStory()
+                                        }else{
+                                            if index == 0 {
+                                                closeStoryViewer()
+                                            }else{
+                                                selectedStory = storiesBundle[index - 1].id
+                                            }
+                                        }
+                                    }
+//                                    goForward ? storiesBundle[index].goToNextStory() : storiesBundle[index].goToPreviousStory()
+//                                    storyIndex = goForward ? storyIndex + 1 : storyIndex - 1
+//                                    selectedStory = storyBundles[goForward ? index + 1 : index - 1].id
+                                }
+                            }
                             .rotation3DEffect(isInternalThumbnailShown ? getAngle(proxy: geo) : .zero , axis: (x:0, y:1, z:0), anchor: geo.frame(in: .global).minX > 0 ? .leading : .trailing, perspective: 0.5)
                             .tag(story.id)
                         }
+                        .animation(.easeInOut(duration: 1.0), value: selectedStory) // 2
+                        .transition(.slide)
                     }
                 }
                 .matchedGeometryEffect(id: selectedStory, in: storyNamespace)
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                
             }
             if showStory && !isInternalThumbnailShown{
-                if let story = storyBundles.first(where: { $0.id == selectedStory}){
+                if let story = storiesBundle.first(where: { $0.id == selectedStory}){
                     ImageLoader(url: story.previewUrl)
                         .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
                         .frame(width: 30, height: 30)
@@ -240,18 +278,21 @@ struct StoryFullScreenViewer: View {
                     opacity = 1.0
                 }
             }else{
-                allow3DRotation = false
-                isInternalThumbnailShown = false
-                DispatchQueue.main.async{
-                    showStory = false
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
-                    offsetY = 0.0
-                    scale = 1.0
-                    opacity = 1.0
-                }
+                closeStoryViewer()
             }
+        }
+    }
+    
+    private func closeStoryViewer(){
+        isInternalThumbnailShown = false
+        DispatchQueue.main.async{
+            showStory = false
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+            offsetY = 0.0
+            scale = 1.0
+            opacity = 1.0
         }
     }
     
@@ -290,7 +331,7 @@ struct StoryHeaderView: View {
 struct StoryContentView: View {
     
     let story: StoryBundle
-    
+    let index: Int
     let geo: GeometryProxy
     
     @Binding var isInternalThumbnailShown: Bool
@@ -298,7 +339,7 @@ struct StoryContentView: View {
     
     var body: some View {
         ZStack {
-            ImageLoaderRect(url: story.previewUrl)
+            ImageLoaderRect(url: story.stories[story.currentStoryIndex].imageURL)
                 .frame(width: geo.size.width, height: geo.size.height)
                 .clipped()
             StoryHeaderView(

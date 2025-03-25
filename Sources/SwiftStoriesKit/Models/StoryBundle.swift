@@ -14,19 +14,34 @@ public struct StoryBundle: Identifiable{
     public let previewUrl: String
     public let type: MediaType
     public let creator: Creator
+    public var currentStoryIndex: Int
     
     public init(
         id: String = "",
         stories: [Story] = [],
         previewUrl: String = "",
         type: MediaType = .photo,
-        creator: Creator = Creator()
+        creator: Creator = Creator(),
+        currentStoryIndex: Int = 0
     ) {
         self.id = id
         self.stories = stories
         self.previewUrl = previewUrl
         self.type = type
         self.creator = creator
+        self.currentStoryIndex = currentStoryIndex
+    }
+    
+    public mutating func goToNextStory() {
+        if currentStoryIndex < stories.count - 1 {
+            currentStoryIndex += 1
+        }
+    }
+    
+    public mutating func goToPreviousStory() {
+        if currentStoryIndex > 0 {
+            currentStoryIndex -= 1
+        }
     }
 }
 
