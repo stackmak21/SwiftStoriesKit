@@ -14,6 +14,8 @@ struct StoryCardView: View {
     @Binding var timerProgress: CGFloat
     @Binding var allow3DRotation: Bool
     
+    @Binding var isInternalShown: Bool
+    
     let storyBundle: StoryBundle
     let thumbnailNamespace: Namespace.ID
     
@@ -39,16 +41,12 @@ struct StoryCardView: View {
     
     @ViewBuilder
     func thumbnailNameSection(story: StoryBundle) -> some View{
-        ZStack{
+        if isInternalShown{
             ImageLoader(url: story.previewUrl)
-                .matchedGeometryEffect(id: selectedStoryBundleID == story.id ? story.id : "", in: thumbnailNamespace)
-                .frame(width: 30, height: 30)
-            
-            ImageLoader(url: story.previewUrl)
-                .frame(width: 30, height: 30)
+                .frame(width: 60, height: 60)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.horizontal)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(.horizontal)
     }
     
     private func getAngle(proxy: GeometryProxy) -> Angle {
@@ -69,6 +67,7 @@ struct StoryCardView: View {
         selectedStoryBundleID: .constant("12345"),
         timerProgress: .constant(CGFloat(2)),
         allow3DRotation: .constant(true),
+        isInternalShown: .constant(true),
         storyBundle: DeveloperPreview.story,
         thumbnailNamespace: Namespace().wrappedValue
     )

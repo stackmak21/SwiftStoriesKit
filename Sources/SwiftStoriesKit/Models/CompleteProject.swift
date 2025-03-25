@@ -18,6 +18,8 @@ struct CompleteProject: View {
     @State var selectedStory: String = ""
     @State var allow3dRotation: Bool = false
     
+    @State var isInternalShown: Bool = false
+    
     var body: some View {
         ZStack{
             VStack{
@@ -33,7 +35,8 @@ struct CompleteProject: View {
                     storyNamespace: storyNamespace,
                     thumbnailNamespace: thumbnailNamespace,
                     showStory: $showStory,
-                    selectedStory: $selectedStory
+                    selectedStory: $selectedStory,
+                    isInternalShown: $isInternalShown
                 )
                 
                 
@@ -43,6 +46,7 @@ struct CompleteProject: View {
                     showStory: $showStory,
                     allow3DRotation: $allow3dRotation,
                     selectedStoryBundleID: $selectedStory,
+                    isInternalShown: $isInternalShown,
                     storiesList: stories,
                     storyNamespace: storyNamespace,
                     thumbnailNamespace: thumbnailNamespace

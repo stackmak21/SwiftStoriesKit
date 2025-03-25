@@ -20,6 +20,8 @@ public struct StoriesView: View {
     @Binding var allow3DRotation: Bool
     @Binding var selectedStoryBundleID: String
     
+    @Binding var isInternalShown: Bool
+    
     let storiesList: [StoryBundle]
     let storyNamespace: Namespace.ID
     let thumbnailNamespace: Namespace.ID
@@ -32,21 +34,51 @@ public struct StoriesView: View {
     public var body: some View {
         ZStack{
             Color.black.opacity(opacity).ignoresSafeArea()
-            
-            TabView(selection: $selectedStoryBundleID){
-                ForEach(storiesList){ storyBundle in
-                    StoryCardView(
-                        selectedStoryBundleID: $selectedStoryBundleID,
-                        timerProgress: $timerProgress,
-                        allow3DRotation: $allow3DRotation,
-                        storyBundle: storyBundle,
-                        thumbnailNamespace: thumbnailNamespace
-                    )
-                    .tag(storyBundle.id)
+            ZStack{
+                ZStack{
+                    TabView(selection: $selectedStoryBundleID){
+                        ForEach(storiesList){ storyBundle in
+                            StoryCardView(
+                                selectedStoryBundleID: $selectedStoryBundleID,
+                                timerProgress: $timerProgress,
+                                allow3DRotation: $allow3DRotation,
+                                isInternalShown: $isInternalShown,
+                                storyBundle: storyBundle,
+                                thumbnailNamespace: thumbnailNamespace
+                            )
+                            .tag(storyBundle.id)
+                        }
+                    }
+                    .matchedGeometryEffect(id: selectedStoryBundleID, in: storyNamespace)
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .onAppear{
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+                            allow3DRotation = true
+                        }
+                    }
+                }
+                if showStory && !isInternalShown{
+                    if let story = DeveloperPreview.stories.first(where: { $0.id == selectedStoryBundleID}){
+                        ImageLoader(url: story.previewUrl)
+                            .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
+                            .frame(width: 60, height: 60)
+                        //                                            .clipShape(Circle())
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                            .padding()
+//                                .opacity(showStory ? 0 : 1)
+                           
+                    }
                 }
             }
-            .matchedGeometryEffect(id: selectedStoryBundleID, in: storyNamespace)
-            .tabViewStyle(.page(indexDisplayMode: .never))
+            .transition(.scale(scale: 0.99))
+            .onTapGesture {
+                isInternalShown = false
+                
+                DispatchQueue.main.asyncAfter(deadline: .now()){
+                    print("show story = false")
+                    showStory = false
+                }
+            }
             .offset(y: offsetY)
             .scaleEffect(scale)
             .gesture(
@@ -54,15 +86,6 @@ public struct StoriesView: View {
                     .onChanged(onDrag)
                     .onEnded(onDragEnded)
             )
-            .onAppear{
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
-                    allow3DRotation = true
-                }
-            }
-            .onChange(of: allow3DRotation) {
-                print("allow 3d Rotation Value: \($0)")
-            }
-            
         }
         .onReceive(timer) { _ in
             guard let story =  storiesList.first(where: { $0.id == selectedStoryBundleID}) else { return }
@@ -74,6 +97,7 @@ public struct StoriesView: View {
                 updateStory()
             }
         }
+        .animation(.spring(duration: 1), value: showStory)
     }
     
     
@@ -83,7 +107,7 @@ public struct StoriesView: View {
     
     
     
-
+    
     
     private func resetTimer(){
         timerProgress = 0
@@ -102,11 +126,11 @@ public struct StoriesView: View {
             }
             else{
                 let storyBundleIndex = storiesList.firstIndex(where: { $0.id == selectedStoryBundleID }) ?? 0
-
-                    
-                        selectedStoryBundleID = storiesList[storyBundleIndex + 1].id
-                    
-               
+                
+                
+                selectedStoryBundleID = storiesList[storyBundleIndex + 1].id
+                
+                
             }
         }
     }
@@ -134,6 +158,7 @@ public struct StoriesView: View {
             }else{
                 allow3DRotation = false
                 if !allow3DRotation{
+                    isInternalShown = false
                     DispatchQueue.main.async{
                         withAnimation(.spring(duration: 1)){
                             showStory = false
@@ -149,7 +174,7 @@ public struct StoriesView: View {
         }
     }
     
-
+    
 }
 
 
@@ -160,6 +185,7 @@ public struct StoriesView: View {
         showStory: .constant(true),
         allow3DRotation: .constant(true),
         selectedStoryBundleID: .constant("12345"),
+        isInternalShown: .constant(true),
         storiesList: DeveloperPreview.stories,
         storyNamespace: Namespace().wrappedValue,
         thumbnailNamespace:  Namespace().wrappedValue

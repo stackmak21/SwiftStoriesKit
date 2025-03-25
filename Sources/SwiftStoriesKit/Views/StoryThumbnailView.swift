@@ -20,7 +20,7 @@ public struct StoryThumbnailView: View {
             label: {
                 ZStack{
                     ImageLoader(url: story.previewUrl)
-                        .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
+                        
                 }
             }
         )
