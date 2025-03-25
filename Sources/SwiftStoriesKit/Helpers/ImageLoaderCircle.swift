@@ -8,7 +8,7 @@
 import SwiftUI
 import Kingfisher
 
-struct ImageLoader: View {
+struct ImageLoaderCircle: View {
     let url: String
     let width: CGFloat?
     let height: CGFloat?
@@ -33,12 +33,11 @@ struct ImageLoader: View {
                             Rectangle()
                                 .frame(width: proxy.size.width, height: proxy.size.height)
                         }
-                        .loadDiskFileSynchronously() // ✅ Ensures smooth loading
-                        .fade(duration: 0) // ✅ Prevents sudden fade-in effects
+                        .loadDiskFileSynchronously()
+                        .fade(duration: 0)
                         .scaledToFill()
                         .frame(width: proxy.size.width, height: proxy.size.height)
                         .clipShape(Circle())
-                        /*.animation(.easeInOut(duration: 0.2), value: url)*/ // ✅ Ensures smooth updates
                 }
                 .frame(width: width, height: height)
             }
@@ -71,12 +70,11 @@ struct ImageLoaderRect: View {
                             Rectangle()
                                 .frame(width: proxy.size.width, height: proxy.size.height)
                         }
-                        .loadDiskFileSynchronously() // ✅ Ensures smooth loading
-                        .fade(duration: 0) // ✅ Prevents sudden fade-in effects
+                        .loadDiskFileSynchronously()
+                        .fade(duration: 0)
                         .scaledToFill()
                         .frame(width: proxy.size.width, height: proxy.size.height)
                         .clipped()
-                        /*.animation(.easeInOut(duration: 0.2), value: url)*/ // ✅ Ensures smooth updates
                 }
                 .frame(width: width, height: height)
             }
@@ -86,7 +84,7 @@ struct ImageLoaderRect: View {
 
 
 #Preview {
-    ImageLoader(
+    ImageLoaderCircle(
         url: "https://picsum.photos/800/1006",
         width: 200,
         height: 200

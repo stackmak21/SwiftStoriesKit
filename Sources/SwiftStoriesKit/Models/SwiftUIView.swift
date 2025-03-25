@@ -58,7 +58,7 @@ struct SwiftUIView: View {
                 
             }
         }
-        .animation(.spring(duration: 0.16), value: showStory)
+        .animation(.spring(duration: 0.14), value: showStory)
     }
     
 
@@ -130,12 +130,13 @@ struct StoryThumbnailItem: View {
     
     var body: some View {
         ZStack {
-            
-            ImageLoaderRect(url: story.stories[story.currentStoryIndex].imageURL)
-                .matchedGeometryEffect(id: story.id, in: storyNamespace)
-                .frame(width: 20, height: 20)
+            ZStack{
+                ImageLoaderRect(url: story.stories[story.currentStoryIndex].imageURL)
+                    .matchedGeometryEffect(id: story.id, in: storyNamespace)
+                    .frame(width: 20, height: 20)
+            }
 
-            ImageLoader(url: story.previewUrl)
+            ImageLoaderCircle(url: story.previewUrl)
                 .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
                 .frame(width: 60, height: 60)
             
@@ -157,6 +158,8 @@ struct StoryThumbnailItem: View {
 struct StoryFullScreenViewer: View {
     
     @Binding var storiesBundle: [StoryBundle]
+    
+    @State var animationDebounce: Bool = false
     
     @State private var offsetY: CGFloat = 0
     @State private var scale: CGFloat = 1
@@ -190,56 +193,62 @@ struct StoryFullScreenViewer: View {
                                 isInternalThumbnailShown: $isInternalThumbnailShown,
                                 timerProgress: $timerProgress
                             )
+                            .tag(story.id)
                             .onTapGesture(coordinateSpace: .global){ location in
-                                
-                                if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
-                                    let goForward = location.x >= geo.size.width / 2
-                                    if goForward{
-                                        if story.currentStoryIndex < story.stories.count - 1 {
-                                            storiesBundle[index].goToNextStory()
-                                        }else{
-                                            if index < storiesBundle.count - 1{
-                                                withAnimation(.easeIn(duration: 3)){
-                                                    
-                                                            selectedStory = storiesBundle[index + 1].id
-                                                        
+                                if !animationDebounce{
+                                    print("Tapped")
+                                    if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
+                                        let goForward = location.x >= geo.size.width / 2
+                                        if goForward{
+                                            if story.currentStoryIndex < story.stories.count - 1 {
+                                                storiesBundle[index].goToNextStory()
+                                            }else{
+                                                if index < storiesBundle.count - 1{
+                                                    animationDebounce = true
+                                                    print("animation debounce = true")
+                                                    selectedStory = storiesBundle[index + 1].id
+                                                }else{
+                                                    closeStoryViewer()
                                                 }
-                                                
-                                            }else{
-                                                closeStoryViewer()
                                             }
                                         }
-                                    }
-                                    if !goForward{
-                                        if story.currentStoryIndex > 0 {
-                                            storiesBundle[index].goToPreviousStory()
-                                        }else{
-                                            if index == 0 {
-                                                closeStoryViewer()
+                                        if !goForward{
+                                            if story.currentStoryIndex > 0 {
+                                                storiesBundle[index].goToPreviousStory()
                                             }else{
-                                                selectedStory = storiesBundle[index - 1].id
+                                                if index == 0 {
+                                                    closeStoryViewer()
+                                                }else{
+                                                    animationDebounce = true
+                                                    selectedStory = storiesBundle[index - 1].id
+                                                }
                                             }
                                         }
+                                        //                                    goForward ? storiesBundle[index].goToNextStory() : storiesBundle[index].goToPreviousStory()
+                                        //                                    storyIndex = goForward ? storyIndex + 1 : storyIndex - 1
+                                        //                                    selectedStory = storyBundles[goForward ? index + 1 : index - 1].id
                                     }
-//                                    goForward ? storiesBundle[index].goToNextStory() : storiesBundle[index].goToPreviousStory()
-//                                    storyIndex = goForward ? storyIndex + 1 : storyIndex - 1
-//                                    selectedStory = storyBundles[goForward ? index + 1 : index - 1].id
                                 }
                             }
                             .rotation3DEffect(isInternalThumbnailShown ? getAngle(proxy: geo) : .zero , axis: (x:0, y:1, z:0), anchor: geo.frame(in: .global).minX > 0 ? .leading : .trailing, perspective: 0.5)
-                            .tag(story.id)
+                            
                         }
-                        .animation(.easeInOut(duration: 1.0), value: selectedStory) // 2
-                        .transition(.slide)
                     }
                 }
-                .matchedGeometryEffect(id: selectedStory, in: storyNamespace)
+                .disabled(animationDebounce)
+                .matchedGeometryEffect(id: isInternalThumbnailShown ? "" : selectedStory , in: storyNamespace)
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                .animation(.spring(duration: 0.1), value: selectedStory)
+                .onChange(of: selectedStory) { _ in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
+                        animationDebounce = false
+                    }
+                }
                 
             }
             if showStory && !isInternalThumbnailShown{
                 if let story = storiesBundle.first(where: { $0.id == selectedStory}){
-                    ImageLoader(url: story.previewUrl)
+                    ImageLoaderCircle(url: story.previewUrl)
                         .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
                         .frame(width: 30, height: 30)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -315,13 +324,33 @@ struct StoryHeaderView: View {
         ZStack{
             VStack(spacing: 0){
                 StoryTimeProgressBar(timerProgress: $timerProgress, story: story)
-                if isInternalThumbnailShown{
-                    ImageLoader(url: story.previewUrl)
-                        .frame(width: 30, height: 30)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                        .padding(.horizontal)
+                HStack(spacing: 0){
+                    ZStack{
+                        Group{
+                            Circle()
+                                .opacity(1)
+                                .frame(width: 30, height: 30)
+                            if isInternalThumbnailShown{
+                                ImageLoaderCircle(url: story.previewUrl)
+                                    .frame(width: 30, height: 30)
+                                    
+                            }
+                        }
+                        .padding(.leading)
+                        .padding(.trailing, 8)
+                        
+                    }
+                    Text("Paraskevas Makris")
+                        .font(.system(size: 20))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.01)
+                        .foregroundStyle(Color.white)
+                        
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -347,6 +376,7 @@ struct StoryContentView: View {
                 isInternalThumbnailShown: $isInternalThumbnailShown,
                 timerProgress: $timerProgress
             )
+            .zIndex(1)
         }
     }
 }

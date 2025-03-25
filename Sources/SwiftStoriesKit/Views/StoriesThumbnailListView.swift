@@ -34,7 +34,7 @@ public struct StoriesThumbnailListView: View {
                                             .matchedGeometryEffect(id: story.id, in: storyNamespace)
                                             .frame(width: 20, height: 20)
                                         
-                                        ImageLoader(url: story.previewUrl)
+                                        ImageLoaderCircle(url: story.previewUrl)
                                         .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
                                         .frame(width: 100, height: 100)
                                     }

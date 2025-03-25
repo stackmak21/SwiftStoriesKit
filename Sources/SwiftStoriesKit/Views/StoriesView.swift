@@ -59,7 +59,7 @@ public struct StoriesView: View {
                 }
                 if showStory && !isInternalShown{
                     if let story = DeveloperPreview.stories.first(where: { $0.id == selectedStoryBundleID}){
-                        ImageLoader(url: story.previewUrl)
+                        ImageLoaderCircle(url: story.previewUrl)
                             .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
                             .frame(width: 60, height: 60)
                         //                                            .clipShape(Circle())

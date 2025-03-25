@@ -42,7 +42,7 @@ struct StoryCardView: View {
     @ViewBuilder
     func thumbnailNameSection(story: StoryBundle) -> some View{
         if isInternalShown{
-            ImageLoader(url: story.previewUrl)
+            ImageLoaderCircle(url: story.previewUrl)
                 .frame(width: 60, height: 60)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .padding(.horizontal)

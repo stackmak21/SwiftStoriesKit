@@ -19,7 +19,7 @@ public struct StoryThumbnailView: View {
             action: { onClick() },
             label: {
                 ZStack{
-                    ImageLoader(url: story.previewUrl)
+                    ImageLoaderCircle(url: story.previewUrl)
                         
                 }
             }
