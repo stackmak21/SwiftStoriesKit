@@ -32,7 +32,7 @@ public struct StoryThumbnailView: View {
 #Preview {
     
     StoryThumbnailView(
-        story: DeveloperPreview.story,
+        story: DeveloperPreview.stories[0],
         thumbnailNamespace: Namespace().wrappedValue,
         onLongPress: {},
         onClick: {}

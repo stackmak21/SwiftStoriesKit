@@ -43,6 +43,12 @@ public struct StoryBundle: Identifiable{
             currentStoryIndex -= 1
         }
     }
+    
+    public mutating func nextStoryToIndex(index: Int) {
+        if currentStoryIndex < stories.count - 1 {
+            currentStoryIndex = index
+        }
+    }
 }
 
 

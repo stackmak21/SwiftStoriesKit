@@ -68,7 +68,7 @@ struct StoryCardView: View {
         timerProgress: .constant(CGFloat(2)),
         allow3DRotation: .constant(true),
         isInternalShown: .constant(true),
-        storyBundle: DeveloperPreview.story,
+        storyBundle: DeveloperPreview.stories[0],
         thumbnailNamespace: Namespace().wrappedValue
     )
 }

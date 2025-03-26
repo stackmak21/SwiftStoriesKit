@@ -59,6 +59,7 @@ struct SwiftUIView: View {
             }
         }
         .animation(.spring(duration: 0.14), value: showStory)
+        
     }
     
 
@@ -178,7 +179,9 @@ struct StoryFullScreenViewer: View {
     
     private let deviceHeight: Double = UIScreen.self.main.bounds.height
     
-    @State var storyIndex: Int = 0
+    @State var timer = Timer.publish(every: 0.03, on: .main, in: .common).autoconnect()
+    
+    
     
     var body: some View {
         ZStack {
@@ -188,52 +191,38 @@ struct StoryFullScreenViewer: View {
                         GeometryReader { geo in
                             StoryContentView(
                                 story: story,
-                                index: storyIndex,
                                 geo: geo,
                                 isInternalThumbnailShown: $isInternalThumbnailShown,
                                 timerProgress: $timerProgress
                             )
-                            .tag(story.id)
-                            .onTapGesture(coordinateSpace: .global){ location in
-                                if !animationDebounce{
-                                    print("Tapped")
-                                    if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
-                                        let goForward = location.x >= geo.size.width / 2
-                                        if goForward{
-                                            if story.currentStoryIndex < story.stories.count - 1 {
-                                                storiesBundle[index].goToNextStory()
-                                            }else{
-                                                if index < storiesBundle.count - 1{
-                                                    animationDebounce = true
-                                                    print("animation debounce = true")
-                                                    selectedStory = storiesBundle[index + 1].id
-                                                }else{
-                                                    closeStoryViewer()
-                                                }
-                                            }
-                                        }
-                                        if !goForward{
-                                            if story.currentStoryIndex > 0 {
-                                                storiesBundle[index].goToPreviousStory()
-                                            }else{
-                                                if index == 0 {
-                                                    closeStoryViewer()
-                                                }else{
-                                                    animationDebounce = true
-                                                    selectedStory = storiesBundle[index - 1].id
-                                                }
-                                            }
-                                        }
-                                        //                                    goForward ? storiesBundle[index].goToNextStory() : storiesBundle[index].goToPreviousStory()
-                                        //                                    storyIndex = goForward ? storyIndex + 1 : storyIndex - 1
-                                        //                                    selectedStory = storyBundles[goForward ? index + 1 : index - 1].id
-                                    }
+                            .onAppear{
+                                print("Content Appeared")
+                                timerProgress = 0
+                                if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
+                                    timerProgress = CGFloat(storiesBundle[bundleIndex].currentStoryIndex)
                                 }
                             }
+                            .tag(story.id)
+                            .onTapGesture(coordinateSpace: .global){ actionBasedOnTapLocation($0, geo, story)}
                             .rotation3DEffect(isInternalThumbnailShown ? getAngle(proxy: geo) : .zero , axis: (x:0, y:1, z:0), anchor: geo.frame(in: .global).minX > 0 ? .leading : .trailing, perspective: 0.5)
-                            
                         }
+//                        .onChange(of: story.currentStoryIndex) { storyIndex in
+//                                timerProgress = CGFloat(storyIndex)
+//                        }
+//                        .onChange(of: Int(timerProgress)) {
+//                            print($0)
+//                            if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
+//                                storiesBundle[index].nextStoryToIndex(index: $0)
+//                            }
+//                        }
                     }
+                    .onAppear {
+                        print("For each loop")
+                    }
+                }
+                .onDisappear {
+                    timerProgress = 0
+                    selectedStory = ""
                 }
                 .disabled(animationDebounce)
                 .matchedGeometryEffect(id: isInternalThumbnailShown ? "" : selectedStory , in: storyNamespace)
@@ -265,6 +254,81 @@ struct StoryFullScreenViewer: View {
                 .onChanged(onDrag)
                 .onEnded(onDragEnded)
         )
+        .onReceive(timer) { _ in
+            if !animationDebounce{
+            
+                if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
+                    let storyBundle = storiesBundle[bundleIndex]
+                    //                print("current story index: \(storyBundle.currentStoryIndex)")
+                    if timerProgress < CGFloat(storyBundle.stories.count) {
+                        timerProgress += 0.01
+//                        if storyBundle.currentStoryIndex{
+//
+//                        }
+                        
+                        let storyIndex = min(Int(timerProgress), storyBundle.stories.count)
+                        if storyBundle.currentStoryIndex != storyIndex{
+                            //                    print("story index: \(storyIndex)")
+                            storiesBundle[bundleIndex].nextStoryToIndex(index: storyIndex)
+                        }
+                    }
+                    else{
+                        if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
+                            if !animationDebounce{
+                                if index < storiesBundle.count - 1{
+                                    //                                print("next creator stories")
+                                    animationDebounce = true
+                                    selectedStory = storiesBundle[index + 1].id
+                                    timerProgress = 0
+                                    //                            updateStory(index)
+                                }else{
+                                    closeStoryViewer()
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    
+    private func actionBasedOnTapLocation(_ location: CGPoint, _ geo: GeometryProxy, _ story: StoryBundle){
+        if !animationDebounce{
+            if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
+                let goForward = location.x >= geo.size.width / 2
+                if goForward{
+                    if story.currentStoryIndex < story.stories.count - 1 {
+                        storiesBundle[index].goToNextStory()
+                        timerProgress = CGFloat(storiesBundle[index].currentStoryIndex)
+                    }else{
+                        if index < storiesBundle.count - 1{
+                            animationDebounce = true
+                            selectedStory = storiesBundle[index + 1].id
+                            timerProgress = 0
+                        }else{
+                            closeStoryViewer()
+                        }
+                    }
+                }
+                if !goForward{
+                    if story.currentStoryIndex > 0 {
+                        storiesBundle[index].goToPreviousStory()
+                        timerProgress = CGFloat(storiesBundle[index].currentStoryIndex)
+                    }else{
+                        if index == 0 {
+                            closeStoryViewer()
+                        }else{
+                            animationDebounce = true
+                            selectedStory = storiesBundle[index - 1].id
+                            timerProgress = 0
+                        }
+                    }
+                }
+            }
+        }
     }
     
     private func onDrag(_ value: DragGesture.Value) {
@@ -295,7 +359,9 @@ struct StoryFullScreenViewer: View {
     private func closeStoryViewer(){
         isInternalThumbnailShown = false
         DispatchQueue.main.async{
-            showStory = false
+            withAnimation(.spring(duration: 0.16)){
+                showStory = false
+            }
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
@@ -333,22 +399,18 @@ struct StoryHeaderView: View {
                             if isInternalThumbnailShown{
                                 ImageLoaderCircle(url: story.previewUrl)
                                     .frame(width: 30, height: 30)
-                                    
                             }
                         }
                         .padding(.leading)
                         .padding(.trailing, 8)
-                        
                     }
                     Text("Paraskevas Makris")
                         .font(.system(size: 20))
                         .lineLimit(1)
                         .minimumScaleFactor(0.01)
                         .foregroundStyle(Color.white)
-                        
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
@@ -360,7 +422,6 @@ struct StoryHeaderView: View {
 struct StoryContentView: View {
     
     let story: StoryBundle
-    let index: Int
     let geo: GeometryProxy
     
     @Binding var isInternalThumbnailShown: Bool
@@ -376,7 +437,6 @@ struct StoryContentView: View {
                 isInternalThumbnailShown: $isInternalThumbnailShown,
                 timerProgress: $timerProgress
             )
-            .zIndex(1)
         }
     }
 }
