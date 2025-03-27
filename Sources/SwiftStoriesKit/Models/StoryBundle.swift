@@ -15,6 +15,7 @@ public struct StoryBundle: Identifiable{
     public let type: MediaType
     public let creator: Creator
     public var currentStoryIndex: Int
+    public var storyTimer: CGFloat
     
     public init(
         id: String = "",
@@ -22,7 +23,8 @@ public struct StoryBundle: Identifiable{
         previewUrl: String = "",
         type: MediaType = .photo,
         creator: Creator = Creator(),
-        currentStoryIndex: Int = 0
+        currentStoryIndex: Int = 0,
+        storyTimer: CGFloat = 0
     ) {
         self.id = id
         self.stories = stories
@@ -30,6 +32,7 @@ public struct StoryBundle: Identifiable{
         self.type = type
         self.creator = creator
         self.currentStoryIndex = currentStoryIndex
+        self.storyTimer = storyTimer
     }
     
     public mutating func goToNextStory() {

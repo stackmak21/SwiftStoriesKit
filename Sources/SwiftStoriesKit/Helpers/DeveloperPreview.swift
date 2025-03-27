@@ -11,7 +11,7 @@ public struct DeveloperPreview {
     
     public static var story: StoryBundle {
         let story = StoryBundle(
-            id: "1234",
+            id: "1",
             stories: [
                 Story(imageURL: "https://picsum.photos/800/1006"),
                 Story(imageURL: "https://picsum.photos/800/1007"),
@@ -26,7 +26,7 @@ public struct DeveloperPreview {
     
     public static var stories: [StoryBundle] {
         let story1 = StoryBundle(
-            id: "1234",
+            id: "1",
             stories: [
                 Story(imageURL: "https://picsum.photos/800/1001"),
                 Story(imageURL: "https://picsum.photos/800/1007"),
@@ -38,7 +38,7 @@ public struct DeveloperPreview {
         )
         
         let story2 = StoryBundle(
-            id: "12345",
+            id: "2",
             stories: [
                 Story(imageURL: "https://picsum.photos/800/1002"),
                 Story(imageURL: "https://picsum.photos/800/1007"),
@@ -50,7 +50,7 @@ public struct DeveloperPreview {
         )
         
         let story3 = StoryBundle(
-            id: "123456",
+            id: "3",
             stories: [
                 Story(imageURL: "https://picsum.photos/800/1003"),
                 Story(imageURL: "https://picsum.photos/800/1007"),
@@ -62,7 +62,7 @@ public struct DeveloperPreview {
         )
         
         let story4 = StoryBundle(
-            id: "1223456",
+            id: "4",
             stories: [
                 Story(imageURL: "https://picsum.photos/800/1004"),
                 Story(imageURL: "https://picsum.photos/800/1007"),
@@ -74,7 +74,7 @@ public struct DeveloperPreview {
         )
         
         let story5 = StoryBundle(
-            id: "1234565",
+            id: "5",
             stories: [
                 Story(imageURL: "https://picsum.photos/800/1005"),
                 Story(imageURL: "https://picsum.photos/800/1007"),
@@ -86,7 +86,7 @@ public struct DeveloperPreview {
         )
         
         let story6 = StoryBundle(
-            id: "1263456",
+            id: "6",
             stories: [
                 Story(imageURL: "https://picsum.photos/800/1006"),
                 Story(imageURL: "https://picsum.photos/800/1007"),

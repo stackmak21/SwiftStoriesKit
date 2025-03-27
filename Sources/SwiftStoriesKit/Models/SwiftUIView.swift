@@ -166,6 +166,8 @@ struct StoryFullScreenViewer: View {
     @State private var scale: CGFloat = 1
     @Binding var opacity: Double
     
+    @State var isTimerPaused: Bool = false
+    
     
     
     @Binding var showStory: Bool
@@ -195,17 +197,70 @@ struct StoryFullScreenViewer: View {
                                 isInternalThumbnailShown: $isInternalThumbnailShown,
                                 timerProgress: $timerProgress
                             )
-                            .onAppear{
-                                print("Content Appeared")
-                                timerProgress = 0
-                                if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
-                                    timerProgress = CGFloat(storiesBundle[bundleIndex].currentStoryIndex)
-                                }
+//                            .onLongPressGesture(
+//                                minimumDuration: 1,
+//                                perform: {
+//                                    print("Perform")
+//                                 
+//                                },
+//                                onPressingChanged: { isTapped in
+//                                    print("Tapped: \(isTapped)")
+////                                    isTimerPaused = isTapped
+//                                }
+//                            )
+                            .onAppear {
+                                print("Story Content Appeared: \(story.id) at \(Date())")
                             }
+                            .onDisappear {
+                                print("Story Content Disappeared: \(story.id) at \(Date())")
+                            }
+                            .onAppear{
+                                print("Story Content: \(story.id)")
+                                timerProgress = 0
+//                                if !isTimerPaused{
+                                    
+                                    if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
+                                        timerProgress = CGFloat(storiesBundle[bundleIndex].currentStoryIndex)
+                                    }
+//                                }
+                            }
+//                            .onDisappear{
+//                                print("Story Content Disappeared: \(selectedStory)")
+//                            }
                             .tag(story.id)
                             .onTapGesture(coordinateSpace: .global){ actionBasedOnTapLocation($0, geo, story)}
+                            .onChange(of: geo.frame(in: .global).minX){
+                                if $0 != 0{
+                                    isTimerPaused = true
+                                }else{
+                                    isTimerPaused = false
+                                }
+                            }
+//                            .simultaneousGesture(
+//                                LongPressGesture(minimumDuration: 0.01)
+//                                    .onEnded { value in
+//                                        isTimerPaused = true
+//                                    }
+//                            )
+//                            .onLongPressGesture(
+////                                minimumDuration: 0.01,
+//                                maximumDistance: .infinity,
+//                                perform: {},
+//                                onPressingChanged: {
+//                                    if !$0{
+//                                        isTimerPaused = false
+//                                    }
+//                                }
+//                            )
+                            
+                         
                             .rotation3DEffect(isInternalThumbnailShown ? getAngle(proxy: geo) : .zero , axis: (x:0, y:1, z:0), anchor: geo.frame(in: .global).minX > 0 ? .leading : .trailing, perspective: 0.5)
+
+//                            .onChange(of: geo.frame(in: .global).minX) {
+//                                print($0)
+//                            }
                         }
+                        
 //                        .onChange(of: story.currentStoryIndex) { storyIndex in
 //                                timerProgress = CGFloat(storyIndex)
 //                        }
@@ -216,9 +271,6 @@ struct StoryFullScreenViewer: View {
 //                            }
 //                        }
                     }
-                    .onAppear {
-                        print("For each loop")
-                    }
                 }
                 .onDisappear {
                     timerProgress = 0
@@ -227,6 +279,7 @@ struct StoryFullScreenViewer: View {
                 .disabled(animationDebounce)
                 .matchedGeometryEffect(id: isInternalThumbnailShown ? "" : selectedStory , in: storyNamespace)
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                .indexViewStyle(PageIndexViewStyle())
                 .animation(.spring(duration: 0.1), value: selectedStory)
                 .onChange(of: selectedStory) { _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
@@ -256,36 +309,37 @@ struct StoryFullScreenViewer: View {
         )
         .onReceive(timer) { _ in
             if !animationDebounce{
-            
-                if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
-                    let storyBundle = storiesBundle[bundleIndex]
-                    //                print("current story index: \(storyBundle.currentStoryIndex)")
-                    if timerProgress < CGFloat(storyBundle.stories.count) {
-                        timerProgress += 0.01
-//                        if storyBundle.currentStoryIndex{
-//
-//                        }
-                        
-                        let storyIndex = min(Int(timerProgress), storyBundle.stories.count)
-                        if storyBundle.currentStoryIndex != storyIndex{
-                            //                    print("story index: \(storyIndex)")
-                            storiesBundle[bundleIndex].nextStoryToIndex(index: storyIndex)
-                        }
-                    }
-                    else{
-                        if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
-                            if !animationDebounce{
-                                if index < storiesBundle.count - 1{
-                                    //                                print("next creator stories")
-                                    animationDebounce = true
-                                    selectedStory = storiesBundle[index + 1].id
-                                    timerProgress = 0
-                                    //                            updateStory(index)
-                                }else{
-                                    closeStoryViewer()
-                                }
-                            }
+                if !isTimerPaused{
+                    if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
+                        let storyBundle = storiesBundle[bundleIndex]
+                        //                print("current story index: \(storyBundle.currentStoryIndex)")
+                        if timerProgress < CGFloat(storyBundle.stories.count){
+                            timerProgress += 0.01
+                            //                        if storyBundle.currentStoryIndex{
+                            //
+                            //                        }
                             
+                            let storyIndex = min(Int(timerProgress), storyBundle.stories.count)
+                            if storyBundle.currentStoryIndex != storyIndex{
+                                //                    print("story index: \(storyIndex)")
+                                storiesBundle[bundleIndex].nextStoryToIndex(index: storyIndex)
+                            }
+                        }
+                        else{
+                            if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
+                                if !animationDebounce{
+                                    if index < storiesBundle.count - 1{
+                                        //                                print("next creator stories")
+                                        animationDebounce = true
+                                        selectedStory = storiesBundle[index + 1].id
+                                        timerProgress = 0
+                                        //                            updateStory(index)
+                                    }else{
+                                        closeStoryViewer()
+                                    }
+                                }
+                                
+                            }
                         }
                     }
                 }
