@@ -68,6 +68,13 @@ public struct StoryBundle: Identifiable{
     public mutating func setTime(){
         storyTimer += 0.01
     }
+    
+    public mutating func resetTimeToCurrentIndex(){
+        if currentStoryIndex < stories.count - 1 {
+            currentStoryIndex += 1
+        }
+        storyTimer = CGFloat(currentStoryIndex)
+    }
 }
 
 
