@@ -96,8 +96,12 @@ public struct StoryCarousel: View {
                         ForEach(storyBundles) { story in
                             
                             ZStack{
+                                
                                 Circle()
-                                    .frame(width: 60, height: 60)
+                                    .stroke(style: StrokeStyle(lineWidth: story.isStoryBundleSeen ? 2 : 3))
+                                    .fill(LinearGradient(colors: story.isStoryBundleSeen ? [Color.gray] : [.pink, .pink, .red, .orange], startPoint: .topTrailing, endPoint: .bottomLeading))
+                                    .scaledToFit()
+                                    .frame(width: story.isStoryBundleSeen ? 66 : 67)
                                 if !showStory  || selectedStory != story.id{
                                     StoryThumbnailItem(
                                         story: story,
@@ -168,6 +172,8 @@ struct StoryFullScreenViewer: View {
     
     @State var isTimerPaused: Bool = false
     
+    @State var isStoryTransitioning: Bool = false
+    
     
     
     @Binding var showStory: Bool
@@ -197,36 +203,11 @@ struct StoryFullScreenViewer: View {
                                 isInternalThumbnailShown: $isInternalThumbnailShown,
                                 timerProgress: $timerProgress
                             )
-//                            .onLongPressGesture(
-//                                minimumDuration: 1,
-//                                perform: {
-//                                    print("Perform")
-//                                 
-//                                },
-//                                onPressingChanged: { isTapped in
-//                                    print("Tapped: \(isTapped)")
-////                                    isTimerPaused = isTapped
-//                                }
-//                            )
-                            .onAppear {
-                                print("Story Content Appeared: \(story.id) at \(Date())")
-                            }
-                            .onDisappear {
-                                print("Story Content Disappeared: \(story.id) at \(Date())")
-                            }
                             .onAppear{
-                                print("Story Content: \(story.id)")
-                                timerProgress = 0
-//                                if !isTimerPaused{
-                                    
-                                    if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
-                                        timerProgress = CGFloat(storiesBundle[bundleIndex].currentStoryIndex)
-                                    }
-//                                }
+                                if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
+                                    storiesBundle[bundleIndex].stories[story.currentStoryIndex].storyShowed()
+                                }
                             }
-//                            .onDisappear{
-//                                print("Story Content Disappeared: \(selectedStory)")
-//                            }
                             .tag(story.id)
                             .onTapGesture(coordinateSpace: .global){ actionBasedOnTapLocation($0, geo, story)}
                             .onChange(of: geo.frame(in: .global).minX){
@@ -234,6 +215,14 @@ struct StoryFullScreenViewer: View {
                                     isTimerPaused = true
                                 }else{
                                     isTimerPaused = false
+                                        if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
+                                            if bundleIndex < storiesBundle.count - 1 {
+                                                storiesBundle[bundleIndex + 1].storyTimer = CGFloat(storiesBundle[bundleIndex + 1].currentStoryIndex)
+                                            }
+                                            if bundleIndex > 0 {
+                                                storiesBundle[bundleIndex - 1].storyTimer = CGFloat(storiesBundle[bundleIndex - 1].currentStoryIndex)
+                                            }
+                                        }
                                 }
                             }
 //                            .simultaneousGesture(
@@ -281,7 +270,7 @@ struct StoryFullScreenViewer: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .indexViewStyle(PageIndexViewStyle())
                 .animation(.spring(duration: 0.1), value: selectedStory)
-                .onChange(of: selectedStory) { _ in
+                .onChange(of: selectedStory) { storyID in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
                         animationDebounce = false
                     }
@@ -308,21 +297,27 @@ struct StoryFullScreenViewer: View {
                 .onEnded(onDragEnded)
         )
         .onReceive(timer) { _ in
+            
             if !animationDebounce{
+                
                 if !isTimerPaused{
                     if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
                         let storyBundle = storiesBundle[bundleIndex]
                         //                print("current story index: \(storyBundle.currentStoryIndex)")
-                        if timerProgress < CGFloat(storyBundle.stories.count){
-                            timerProgress += 0.01
+                        if storiesBundle[bundleIndex].storyTimer < CGFloat(storyBundle.stories.count){
+//                            timerProgress += 0.01
+                            
+                            storiesBundle[bundleIndex].setTime()
+                            
                             //                        if storyBundle.currentStoryIndex{
                             //
                             //                        }
                             
-                            let storyIndex = min(Int(timerProgress), storyBundle.stories.count)
+                            let storyIndex = min(Int(storiesBundle[bundleIndex].storyTimer), storyBundle.stories.count)
                             if storyBundle.currentStoryIndex != storyIndex{
                                 //                    print("story index: \(storyIndex)")
-                                storiesBundle[bundleIndex].nextStoryToIndex(index: storyIndex)
+                                storiesBundle[bundleIndex].goToNextStory(with: storyIndex)
+//                                storiesBundle[bundleIndex].storyTimer = CGFloat(storiesBundle[bundleIndex].currentStoryIndex)
                             }
                         }
                         else{
@@ -330,9 +325,10 @@ struct StoryFullScreenViewer: View {
                                 if !animationDebounce{
                                     if index < storiesBundle.count - 1{
                                         //                                print("next creator stories")
+                                        print("hereeee")
                                         animationDebounce = true
                                         selectedStory = storiesBundle[index + 1].id
-                                        timerProgress = 0
+                                        storiesBundle[bundleIndex].storyTimer = CGFloat(storiesBundle[bundleIndex].currentStoryIndex)
                                         //                            updateStory(index)
                                     }else{
                                         closeStoryViewer()
@@ -356,12 +352,13 @@ struct StoryFullScreenViewer: View {
                 if goForward{
                     if story.currentStoryIndex < story.stories.count - 1 {
                         storiesBundle[index].goToNextStory()
-                        timerProgress = CGFloat(storiesBundle[index].currentStoryIndex)
+                        storiesBundle[index].storyTimer = CGFloat(storiesBundle[index].currentStoryIndex)
                     }else{
                         if index < storiesBundle.count - 1{
                             animationDebounce = true
                             selectedStory = storiesBundle[index + 1].id
-                            timerProgress = 0
+                            storiesBundle[index].storyTimer = CGFloat(storiesBundle[index].currentStoryIndex)
+                            
                         }else{
                             closeStoryViewer()
                         }
@@ -370,14 +367,15 @@ struct StoryFullScreenViewer: View {
                 if !goForward{
                     if story.currentStoryIndex > 0 {
                         storiesBundle[index].goToPreviousStory()
-                        timerProgress = CGFloat(storiesBundle[index].currentStoryIndex)
+                        storiesBundle[index].storyTimer = CGFloat(storiesBundle[index].currentStoryIndex)
                     }else{
                         if index == 0 {
                             closeStoryViewer()
                         }else{
                             animationDebounce = true
                             selectedStory = storiesBundle[index - 1].id
-                            timerProgress = 0
+                            storiesBundle[index].storyTimer = CGFloat(storiesBundle[index].currentStoryIndex)
+                            
                         }
                     }
                 }
@@ -448,7 +446,7 @@ struct StoryHeaderView: View {
                     ZStack{
                         Group{
                             Circle()
-                                .opacity(1)
+                                .opacity(0.01)
                                 .frame(width: 30, height: 30)
                             if isInternalThumbnailShown{
                                 ImageLoaderCircle(url: story.previewUrl)
@@ -506,7 +504,7 @@ public struct StoryTimeProgressBar: View {
             ForEach(Array(story.stories.enumerated()), id: \.offset){ index, item in
                 GeometryReader{ geo in
                     let width = geo.size.width
-                    let progress = timerProgress - CGFloat(index)
+                    let progress = story.storyTimer - CGFloat(index)
                     let perfectProgress = min(max(progress, 0), 1)
                     Capsule()
                         .foregroundColor(Color.white.opacity(0.4))
