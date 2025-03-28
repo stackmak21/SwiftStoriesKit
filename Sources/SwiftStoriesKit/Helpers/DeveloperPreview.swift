@@ -25,6 +25,20 @@ public struct DeveloperPreview {
     }
     
     public static var stories: [StoryBundle] {
+        var storiesList: [StoryBundle] = []
+        
+        for i in 1...9 {
+            var stories: [Story] = []
+            for j in 1...3{
+                stories.append(Story(imageURL: "https://picsum.photos/800/11\(i)\(j)"))
+            }
+            let story = StoryBundle(id: "\(i)", stories: stories, previewUrl: "https://picsum.photos/801/100\(i)", type: .photo, creator: Creator())
+            storiesList.append(story)
+        }
+        return storiesList
+    }
+    
+    public static var stories1: [StoryBundle] {
         let story1 = StoryBundle(
             id: "1",
             stories: [
