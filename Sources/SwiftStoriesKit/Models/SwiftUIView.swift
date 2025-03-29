@@ -204,10 +204,13 @@ struct StoryFullScreenViewer: View {
                                 timerProgress: $timerProgress
                             )
                             .onAppear{
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
                                     if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
-                                        storiesBundle[bundleIndex].stories[story.currentStoryIndex].storyShowed()
+                                        if selectedStory == story.id{
+                                                storiesBundle[bundleIndex].stories[story.currentStoryIndex].storyShowed()
+                                        }
                                     }
+                                    
                                 }
                             }
                             .tag(story.id)
@@ -233,17 +236,12 @@ struct StoryFullScreenViewer: View {
                         }
                     }
                 }
-                .onDisappear {
-                    timerProgress = 0
-                    selectedStory = ""
-                }
                 .disabled(animationDebounce)
                 .matchedGeometryEffect(id: isInternalThumbnailShown ? "" : selectedStory , in: storyNamespace)
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .indexViewStyle(PageIndexViewStyle())
                 .animation(.spring(duration: 0.1), value: selectedStory)
                 .onChange(of: selectedStory) { storyID in
-                    isStoryTransitioning  = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
                         animationDebounce = false
                     }
@@ -277,7 +275,7 @@ struct StoryFullScreenViewer: View {
                     if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
                         let storyBundle = storiesBundle[bundleIndex]
                         if storiesBundle[bundleIndex].storyTimer < CGFloat(storyBundle.stories.count){
-                            storiesBundle[bundleIndex].setTime()
+                            storiesBundle[bundleIndex].updateTimer()
                             let storyIndex = min(Int(storiesBundle[bundleIndex].storyTimer), storyBundle.stories.count)
                             if storyBundle.currentStoryIndex != storyIndex{
                                 storiesBundle[bundleIndex].goToNextStory(with: storyIndex)
@@ -290,6 +288,9 @@ struct StoryFullScreenViewer: View {
                                         animationDebounce = true
                                         selectedStory = storiesBundle[index + 1].id
                                         storiesBundle[bundleIndex].storyTimer = CGFloat(storiesBundle[bundleIndex].currentStoryIndex)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+                                                storiesBundle[bundleIndex].stories[storiesBundle[bundleIndex].currentStoryIndex].storyShowed()
+                                        }
                                     }else{
                                         closeStoryViewer()
                                     }
@@ -313,12 +314,15 @@ struct StoryFullScreenViewer: View {
                     if story.currentStoryIndex < story.stories.count - 1 {
                         storiesBundle[index].goToNextStory()
                         storiesBundle[index].storyTimer = CGFloat(storiesBundle[index].currentStoryIndex)
-                    }else{
+                        storiesBundle[index].stories[story.currentStoryIndex].storyShowed()
+                    }
+                    else{
                         if index < storiesBundle.count - 1{
                             animationDebounce = true
                             selectedStory = storiesBundle[index + 1].id
-                            storiesBundle[index].storyTimer = CGFloat(storiesBundle[index].currentStoryIndex)
-                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+                                storiesBundle[index].storyTimer = CGFloat(storiesBundle[index].currentStoryIndex)
+                            }
                         }else{
                             closeStoryViewer()
                         }
@@ -370,7 +374,9 @@ struct StoryFullScreenViewer: View {
     
     private func closeStoryViewer(){
         if let bundleIndex = storiesBundle.firstIndex(where: {$0.id == selectedStory}){
-            storiesBundle[bundleIndex].resetTimeToCurrentIndex()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+                storiesBundle[bundleIndex].resetTimeToCurrentIndex()
+            }
         }
         isInternalThumbnailShown = false
         DispatchQueue.main.async{

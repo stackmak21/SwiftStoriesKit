@@ -65,7 +65,7 @@ public struct StoryBundle: Identifiable{
         }
     }
     
-    public mutating func setTime(){
+    public mutating func updateTimer(){
         storyTimer += 0.01
     }
     
