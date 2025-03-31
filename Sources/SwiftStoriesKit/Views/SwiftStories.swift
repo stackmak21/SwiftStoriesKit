@@ -29,6 +29,8 @@ public struct SwiftStories: View {
     
     private let deviceHeight: Double = UIScreen.self.main.bounds.height
     
+    public init() {}
+    
     public var body: some View {
         ZStack {
             
