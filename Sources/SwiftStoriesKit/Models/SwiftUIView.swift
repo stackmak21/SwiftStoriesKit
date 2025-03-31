@@ -215,8 +215,8 @@ struct StoryFullScreenViewer: View {
                             }
                             .tag(story.id)
                             .onTapGesture(coordinateSpace: .global){ actionBasedOnTapLocation($0, geo, story)}
-                            .onChange(of: geo.frame(in: .global).minX){
-                                if $0 != 0{
+                            .onChange(of: geo.frame(in: .global).minX){ minX in
+                                if minX != 0{
                                     isTimerPaused = true
                                 }else{
                                     isTimerPaused = false
@@ -279,7 +279,11 @@ struct StoryFullScreenViewer: View {
                             let storyIndex = min(Int(storiesBundle[bundleIndex].storyTimer), storyBundle.stories.count)
                             if storyBundle.currentStoryIndex != storyIndex{
                                 storiesBundle[bundleIndex].goToNextStory(with: storyIndex)
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+                                        storiesBundle[bundleIndex].stories[storiesBundle[bundleIndex].currentStoryIndex].storyShowed()
+                                }
                             }
+                            
                         }
                         else{
                             if let index = storiesBundle.firstIndex(where: { $0.id == selectedStory }){
@@ -357,8 +361,12 @@ struct StoryFullScreenViewer: View {
     }
     
     private func onDragEnded(_ value: DragGesture.Value){
+        
         let dy = value.translation.height
         
+        if dy < 0{
+            isTimerPaused = false
+        }
         if dy >= 0.0 {
             if dy <= deviceHeight / 10 {
                 withAnimation {
