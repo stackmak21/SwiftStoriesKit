@@ -54,14 +54,12 @@ public struct StoryBundle: Identifiable{
     public mutating func goToPreviousStory() {
         if currentStoryIndex > 0 {
             currentStoryIndex -= 1
-//            storyTimer = CGFloat(currentStoryIndex)
         }
     }
     
     public mutating func goToNextStory(with index: Int) {
         if currentStoryIndex < stories.count - 1 {
             currentStoryIndex = index
-//            storyTimer = CGFloat(currentStoryIndex)
         }
     }
     

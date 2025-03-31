@@ -1,164 +1,11 @@
 //
-//  SwiftUIView.swift
+//  StoryFullScreenViewer.swift
 //  SwiftStoriesKit
 //
-//  Created by Paris Makris on 18/3/25.
+//  Created by Paris Makris on 31/3/25.
 //
 
 import SwiftUI
-
-struct SwiftUIView: View {
-    @State var stories: [StoryBundle] = DeveloperPreview.stories
-    
-    @Namespace private var thumbnailNamespace
-    @Namespace private var storyNamespace
-    
-    @State private var selectedStory: String = ""
-    @State private var showStory: Bool = false
-    
-    @State private var isInternalThumbnailShown: Bool = false
-
-    @State private var offsetY: CGFloat = 0
-    @State private var scale: CGFloat = 1
-    @State private var opacity: Double = 1
-    @State private var showInfo: Bool = false
-    
-    @State var timerProgress: CGFloat = 0
-    
-    private let deviceHeight: Double = UIScreen.self.main.bounds.height
-    
-    var body: some View {
-        ZStack {
-            
-            StoryCarousel(
-                storyBundles: $stories,
-                showStory: $showStory,
-                isInternalThumbnailShown: $isInternalThumbnailShown,
-                selectedStory: $selectedStory,
-                thumbnailNamespace: thumbnailNamespace,
-                storyNamespace: storyNamespace
-            )
-            
-            // MARK: - Fullscreen Story Viewer
-            Color.black.opacity(showStory ? opacity : 0).ignoresSafeArea()
-            
-            if showStory {
-                
-                    
-                    StoryFullScreenViewer(
-                        storiesBundle: $stories,
-                        opacity: $opacity,
-                        showStory: $showStory,
-                        isInternalThumbnailShown: $isInternalThumbnailShown,
-                        selectedStory: $selectedStory,
-                        timerProgress: $timerProgress,
-                        thumbnailNamespace: thumbnailNamespace,
-                        storyNamespace: storyNamespace
-                    )
-                
-            }
-        }
-        .animation(.spring(duration: 0.14), value: showStory)
-        
-    }
-    
-
-}
-
-#Preview {
-    SwiftUIView()
-}
-
-
-
-
-
-
-
-
-public struct StoryCarousel: View {
-    
-    @Binding var storyBundles: [StoryBundle]
-    
-    @Binding var showStory: Bool
-    @Binding var isInternalThumbnailShown: Bool
-    @Binding var selectedStory: String
-    
-    var thumbnailNamespace: Namespace.ID
-    var storyNamespace: Namespace.ID
-    
-    public var body: some View {
-        
-            // MARK: - Thumbnail Section
-            ScrollView(.horizontal, showsIndicators: false){
-                VStack{
-                    HStack {
-                        ForEach(storyBundles) { story in
-                            
-                            ZStack{
-                                
-                                Circle()
-                                    .stroke(style: StrokeStyle(lineWidth: story.isStoryBundleSeen ? 2 : 3))
-                                    .fill(LinearGradient(colors: story.isStoryBundleSeen ? [Color.gray] : [.pink, .pink, .red, .orange], startPoint: .topTrailing, endPoint: .bottomLeading))
-                                    .scaledToFit()
-                                    .frame(width: story.isStoryBundleSeen ? 66 : 67)
-                                if !showStory  || selectedStory != story.id{
-                                    StoryThumbnailItem(
-                                        story: story,
-                                        showStory: $showStory,
-                                        isInternalThumbnailShown: $isInternalThumbnailShown,
-                                        selectedStory: $selectedStory,
-                                        thumbnailNamespace: thumbnailNamespace,
-                                        storyNamespace: storyNamespace
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    Spacer()
-                }
-            }
-         
-    }
-}
-
-struct StoryThumbnailItem: View {
-    
-    let story: StoryBundle
-    
-    @Binding var showStory: Bool
-    @Binding var isInternalThumbnailShown: Bool
-    @Binding var selectedStory: String
-    
-    var thumbnailNamespace: Namespace.ID
-    var storyNamespace: Namespace.ID
-    
-    var body: some View {
-        ZStack {
-            ZStack{
-                ImageLoaderRect(url: story.stories[story.currentStoryIndex].imageURL)
-                    .matchedGeometryEffect(id: story.id, in: storyNamespace)
-                    .frame(width: 20, height: 20)
-            }
-
-            ImageLoaderCircle(url: story.previewUrl)
-                .matchedGeometryEffect(id: story.id, in: thumbnailNamespace)
-                .frame(width: 60, height: 60)
-            
-        }
-        .transition(.scale(scale: 0.99))
-        .onDisappear {
-            isInternalThumbnailShown = true
-        }
-        .onTapGesture {
-            selectedStory = story.id
-            DispatchQueue.main.asyncAfter(deadline: .now()){
-                showStory = true
-            }
-        }
-    }
-}
-
 
 struct StoryFullScreenViewer: View {
     
@@ -408,92 +255,16 @@ struct StoryFullScreenViewer: View {
     }
 }
 
-struct StoryHeaderView: View {
-    
-    let story: StoryBundle
-    
-    @Binding var isInternalThumbnailShown: Bool
-    @Binding var timerProgress: CGFloat
-    
-    var body: some View {
-        ZStack{
-            VStack(spacing: 0){
-                StoryTimeProgressBar(timerProgress: $timerProgress, story: story)
-                HStack(spacing: 0){
-                    ZStack{
-                        Group{
-                            Circle()
-                                .opacity(0.01)
-                                .frame(width: 30, height: 30)
-                            if isInternalThumbnailShown{
-                                ImageLoaderCircle(url: story.previewUrl)
-                                    .frame(width: 30, height: 30)
-                            }
-                        }
-                        .padding(.leading)
-                        .padding(.trailing, 8)
-                    }
-                    Text("Paraskevas Makris")
-                        .font(.system(size: 20))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.01)
-                        .foregroundStyle(Color.white)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    }
-}
 
-
-struct StoryContentView: View {
-    
-    let story: StoryBundle
-    let geo: GeometryProxy
-    
-    @Binding var isInternalThumbnailShown: Bool
-    @Binding var timerProgress: CGFloat
-    
-    var body: some View {
-        ZStack {
-            ImageLoaderRect(url: story.stories[story.currentStoryIndex].imageURL)
-                .frame(width: geo.size.width, height: geo.size.height)
-                .clipped()
-            StoryHeaderView(
-                story: story,
-                isInternalThumbnailShown: $isInternalThumbnailShown,
-                timerProgress: $timerProgress
-            )
-        }
-    }
-}
-
-
-public struct StoryTimeProgressBar: View {
-    
-    @Binding var timerProgress: CGFloat
-    let story: StoryBundle
-    
-    public var body: some View {
-        HStack(spacing: 0){
-            ForEach(Array(story.stories.enumerated()), id: \.offset){ index, item in
-                GeometryReader{ geo in
-                    let width = geo.size.width
-                    let progress = story.storyTimer - CGFloat(index)
-                    let perfectProgress = min(max(progress, 0), 1)
-                    Capsule()
-                        .foregroundColor(Color.white.opacity(0.4))
-                    
-                    Capsule()
-                        .foregroundColor(Color.white.opacity(1))
-                        .frame(width: width * perfectProgress, alignment: .leading)
-                }
-                .padding(.trailing, story.stories.count - 1 != index ? 4 : 0 )
-                .frame(height: 2)
-            }
-        }
-        .padding(10)
-    }
+#Preview {
+    StoryFullScreenViewer(
+        storiesBundle: .constant(DeveloperPreview.stories),
+        opacity: .constant(1),
+        showStory: .constant(true),
+        isInternalThumbnailShown: .constant(true),
+        selectedStory: .constant(""),
+        timerProgress: .constant(2.5),
+        thumbnailNamespace: Namespace().wrappedValue,
+        storyNamespace: Namespace().wrappedValue
+    )
 }
