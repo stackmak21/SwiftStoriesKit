@@ -9,7 +9,7 @@ import SwiftUI
 
 import SwiftUI
 
-struct SwiftStories: View {
+public struct SwiftStories: View {
     @State var stories: [StoryBundle] = DeveloperPreview.stories
     
     @Namespace private var thumbnailNamespace
@@ -29,7 +29,7 @@ struct SwiftStories: View {
     
     private let deviceHeight: Double = UIScreen.self.main.bounds.height
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             
             StoryCarousel(

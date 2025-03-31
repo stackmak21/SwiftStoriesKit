@@ -81,7 +81,7 @@ public struct Story: Identifiable, Hashable {
     public let imageURL: String
     public var isSeen: Bool
     
-    init(imageURL: String, isSeen: Bool = false) {
+    public init(imageURL: String, isSeen: Bool = false) {
         self.imageURL = imageURL
         self.isSeen = isSeen
     }
