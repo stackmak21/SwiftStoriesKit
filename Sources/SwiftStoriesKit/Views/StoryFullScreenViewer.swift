@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct StoryFullScreenViewer: View {
+public struct StoryFullScreenViewer: View {
     
     @Binding var storiesBundle: [StoryBundle]
     
@@ -38,7 +38,7 @@ struct StoryFullScreenViewer: View {
     
     
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             ZStack{
                 TabView(selection: $selectedStory) {
