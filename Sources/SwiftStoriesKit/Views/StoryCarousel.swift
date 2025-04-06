@@ -46,9 +46,8 @@ public struct StoryCarousel: View {
                             }
                         }
                     }
-                    
+                    Spacer()
                 }
-                .frame(height: 80)
             }
          
     }
