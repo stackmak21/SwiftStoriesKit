@@ -38,6 +38,6 @@ public struct StoryTimeProgressBar: View {
 #Preview {
     StoryTimeProgressBar(
         timerProgress: .constant(2.4),
-        story: DeveloperPreview.story
+        story: StoriesDeveloperPreview.story
     )
 }

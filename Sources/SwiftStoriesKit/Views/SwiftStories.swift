@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftUI
 
 public struct SwiftStories: View {
-    @State var stories: [StoryBundle] = DeveloperPreview.stories
+    @State var stories: [StoryBundle] = StoriesDeveloperPreview.stories
     
     @Namespace private var thumbnailNamespace
     @Namespace private var storyNamespace

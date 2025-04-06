@@ -7,7 +7,7 @@
 import SwiftUI
 import Foundation
 
-public struct DeveloperPreview {
+public struct StoriesDeveloperPreview {
     
     public static var story: StoryBundle {
         let story = StoryBundle(

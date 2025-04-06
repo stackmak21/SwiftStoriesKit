@@ -56,7 +56,7 @@ public struct StoryCarousel: View {
 
 #Preview {
     StoryCarousel(
-        storyBundles: .constant(DeveloperPreview.stories),
+        storyBundles: .constant(StoriesDeveloperPreview.stories),
         showStory: .constant(false),
         isInternalThumbnailShown: .constant(false),
         selectedStory: .constant(""),

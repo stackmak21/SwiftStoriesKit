@@ -258,7 +258,7 @@ public struct StoryFullScreenViewer: View {
 
 #Preview {
     StoryFullScreenViewer(
-        storiesBundle: .constant(DeveloperPreview.stories),
+        storiesBundle: .constant(StoriesDeveloperPreview.stories),
         opacity: .constant(1),
         showStory: .constant(true),
         isInternalThumbnailShown: .constant(true),

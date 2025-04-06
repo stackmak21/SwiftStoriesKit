@@ -46,7 +46,7 @@ struct StoryThumbnailItem: View {
 
 #Preview {
     StoryThumbnailItem(
-        story: DeveloperPreview.story,
+        story: StoriesDeveloperPreview.story,
         showStory: .constant(false),
         isInternalThumbnailShown: .constant(false),
         selectedStory: .constant(""),

@@ -48,7 +48,7 @@ struct StoryHeaderView: View {
 
 #Preview {
     StoryHeaderView(
-        story: DeveloperPreview.story,
+        story: StoriesDeveloperPreview.story,
         isInternalThumbnailShown: .constant(true),
         timerProgress: .constant(2.4)
     )
