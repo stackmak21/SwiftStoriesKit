@@ -36,6 +36,26 @@ public struct StoryFullScreenViewer: View {
     
     @State var timer = Timer.publish(every: 0.03, on: .main, in: .common).autoconnect()
     
+    public init(
+        storiesBundle: Binding<[StoryBundle]>,
+        opacity: Binding<Double>,
+        showStory: Binding<Bool>,
+        isInternalThumbnailShown: Binding<Bool>,
+        selectedStory: Binding<String>,
+        timerProgress: Binding<CGFloat>,
+        thumbnailNamespace: Namespace.ID,
+        storyNamespace: Namespace.ID
+        
+    ){
+        self._storiesBundle = storiesBundle
+        self._opacity = opacity
+        self._showStory = showStory
+        self._isInternalThumbnailShown = isInternalThumbnailShown
+        self._selectedStory = selectedStory
+        self._timerProgress = timerProgress
+        self.thumbnailNamespace = thumbnailNamespace
+        self.storyNamespace = storyNamespace
+    }
     
     
     public var body: some View {
