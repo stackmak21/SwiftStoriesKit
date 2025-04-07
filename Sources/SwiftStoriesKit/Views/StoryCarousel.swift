@@ -18,6 +18,22 @@ public struct StoryCarousel: View {
     var thumbnailNamespace: Namespace.ID
     var storyNamespace: Namespace.ID
     
+    public init(
+        storyBundles: Binding<[StoryBundle]>,
+        showStory: Binding<Bool>,
+        isInternalThumbnailShown: Binding<Bool>,
+        selectedStory: Binding<String>,
+        thumbnailNamespace: Namespace.ID,
+        storyNamespace: Namespace.ID
+    ) {
+        self._storyBundles = storyBundles
+        self._showStory = showStory
+        self._isInternalThumbnailShown = isInternalThumbnailShown
+        self._selectedStory = selectedStory
+        self.thumbnailNamespace = thumbnailNamespace
+        self.storyNamespace = storyNamespace
+    }
+    
     public var body: some View {
         
             // MARK: - Thumbnail Section
