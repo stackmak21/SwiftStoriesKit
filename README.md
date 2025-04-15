@@ -1,4 +1,7 @@
 # SwiftStoriesKit
+
+⚠️ This project is currently under development. The codebase is evolving and may not yet reflect the finalized structure or best practices. Documentation is also not yet available and will be added in a future stage.
+
 SwiftStoriesKit is a lightweight Swift package designed to bring Instagram-style Stories functionality to your iOS app using SwiftUI. It allows developers to easily integrate full-screen, auto-playing stories with smooth transitions and progress indicators.
 
 ![ScreenRecording_04-15-2025 12-13-35_1](https://github.com/user-attachments/assets/0192e1d2-ffa4-4f4f-b619-507d6975256d)
