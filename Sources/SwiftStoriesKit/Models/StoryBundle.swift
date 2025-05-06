@@ -64,7 +64,12 @@ public struct StoryBundle: Identifiable{
     }
     
     public mutating func updateTimer(){
-        storyTimer += 0.01
+        
+        storyTimer += getStep(duration: 3)
+    }
+    
+    private func getStep(duration: CGFloat) -> CGFloat{
+        return 0.03 / duration
     }
     
     public mutating func resetTimeToCurrentIndex(){
