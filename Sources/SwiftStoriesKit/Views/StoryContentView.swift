@@ -25,6 +25,7 @@ struct StoryContentView: View {
                 isInternalThumbnailShown: $isInternalThumbnailShown,
                 timerProgress: $timerProgress
             )
+            .zIndex(1)
         }
     }
 }
